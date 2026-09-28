@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16
+    env_file:
+      - config/docker/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    env_file:
+      - config/docker/.env
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

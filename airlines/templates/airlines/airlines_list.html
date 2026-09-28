@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Airlines</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Airlines</h1>
+        <h1>{{test}}</h1>
+
+        <a href="{% url 'airline-create' %}" class="btn btn-primary">
+            + Create Airline
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Website</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for airline in airlines %}
+                <tr>
+                    <td>{{ airline.name }}</td>
+                    <td>{{ airline.website }}</td>
+                    <td>{{ airline.phone }}</td>
+                    <td>{{ airline.email }}</td>
+                    <td>{{ airline.description }}</td>
+
+                    <td>
+                        <a
+                            href="{% url 'airline-edit' airline.pk %}"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Edit"
+                        >
+                            ✏️
+                        </a>
+
+                        <a
+                            href="{% url 'airline-delete' airline.pk %}"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Delete"
+                        >
+                            ❌
+                        </a>
+                    </td>
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="6" class="text-center">
+                        No airlines found.
+                    </td>
+                </tr>
+
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+</html>
