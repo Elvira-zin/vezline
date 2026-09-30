@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Airports</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+
+<body>
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Airports</h1>
+
+        <a href="{% url 'airport-create' %}" class="btn btn-primary">
+            + Create Airport
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for airport in airports %}
+                <tr>
+                    <td>{{ airport.name }}</td>
+                    <td>{{ airport.city }}</td>
+                    <td>{{ airport.country }}</td>
+                    <td>{{ airport.code }}</td>
+                    <td>
+                      <a
+                              href="{% url 'airport-edit' airport.pk %}"
+                              class="btn btn-sm btn-outline-primary"
+                      >
+                                Edit
+                      </a>
+
+                      <a
+                             href="{% url 'airport-delete' airport.pk %}"
+                              class="btn btn-sm btn-outline-danger"
+                      >
+                                Delete
+                      </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">
+                        No airports found.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>
