@@ -1,0 +1,25 @@
+{% extends "airplanes/base.html" %}
+
+{% block title %}
+  {% if form.instance.pk %}Edit Airplane{% else %}Create Airplane{% endif %}
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <h1 class="mb-4">
+        {% if form.instance.pk %}Edit Airplane{% else %}Create Airplane{% endif %}
+    </h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">
+            {% if form.instance.pk %}Save changes{% else %}Create{% endif %}
+        </button>
+        <a href="{% url 'airplane-list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+
+</div>
+{% endblock content %}
