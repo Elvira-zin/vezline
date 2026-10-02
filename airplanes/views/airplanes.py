@@ -4,7 +4,7 @@ from airplanes.forms.airplanes import AirplaneForm
 from airplanes.models import Airplane
 
 
-def airplane_list(request):
+def airplanes_list(request):
     airplanes = Airplane.objects.all()
     return render(request, "airplanes/airplanes_list.html", {"airplanes": airplanes})
 
@@ -13,7 +13,7 @@ def airplane_create(request):
         form = AirplaneForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("airplanes_list")
+            return redirect("airplane-list")
     else:
         form = AirplaneForm()
     return render(request, "airplanes/airplane_form.html", {"form": form})
@@ -26,7 +26,7 @@ def airplane_edit(request, pk):
 
         if form.is_valid():
             form.save()
-            return redirect("airplanes_list")
+            return redirect("airplane-list")
     else:
         form = AirplaneForm(instance=airplane)
 
@@ -40,7 +40,7 @@ def airplane_delete(request, pk):
 
     if request.method == "POST":
         airplane.delete()
-        return redirect("airplanes_list")
+        return redirect("airplane-list")
 
     return render(
         request,
