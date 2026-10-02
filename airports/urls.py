@@ -1,6 +1,5 @@
 from django.urls import path
 from airports.views.airports import airport_edit, airport_create, airports_list, airport_delete
-git
 
 urlpatterns = [
     path("", airports_list, name="airport-list"),
