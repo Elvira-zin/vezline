@@ -1,7 +1,6 @@
-from django.contrib import admin
 from django.urls import path
-from main.views import hello
+from main.views import home
 
 urlpatterns = [
-    path('hello^', hello),
+    path("", home, name="home"),
 ]
