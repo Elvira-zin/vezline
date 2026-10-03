@@ -7,7 +7,7 @@ from airlines.models import Airline
 
 def airlines_list(request):
     airlines = Airline.objects.all()
-    return render(request, "airlines/airlines_list.html", {"airlines": airlines, "test": "Train"},)
+    return render(request, "airlines/airlines_list.html", {"airlines": airlines},)
 
 
 def airline_create(request):
