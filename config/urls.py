@@ -26,6 +26,5 @@ urlpatterns = [
     path("seats/", include("seats.urls")),
     path("", include("main.urls")),
     path("flights/", include("flights.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
-
-
