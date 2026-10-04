@@ -15,5 +15,10 @@ class Seat(models.Model):
         default=SeatClass.ECONOMY,
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["airplane", "number"], name="unique_seats_in_airplane"),
+        ]
+
     def __str__(self):
         return f"{self.airplane} - {self.number}"
