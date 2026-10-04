@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+    Flight
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h1 class="mb-4">
+        {% if form.instance.pk %}
+            Edit Flight
+        {% else %}
+            Add Flight
+        {% endif %}
+    </h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">
+            Save
+        </button>
+
+        <a href="{% url 'flight-list' %}" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}

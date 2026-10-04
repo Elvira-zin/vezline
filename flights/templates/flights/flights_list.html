@@ -1,0 +1,69 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+    Flights
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Flights</h1>
+
+        <a href="{% url 'flight-create' %}" class="btn btn-primary">
+            Add Flight
+        </a>
+    </div>
+
+    {% if flights %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Flight number</th>
+                    <th>Airplane</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Departure time</th>
+                    <th>Arrival time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for flight in flights %}
+                    <tr>
+                        <td>{{ flight.flight_number }}</td>
+                        <td>{{ flight.airplane }}</td>
+                        <td>{{ flight.departure_airport }}</td>
+                        <td>{{ flight.arrival_airport }}</td>
+                        <td>{{ flight.departure_time }}</td>
+                        <td>{{ flight.arrival_time }}</td>
+                        <td>{{ flight.status }}</td>
+                        <td>
+                            <a
+                                href="{% url 'flight-edit' flight.pk %}"
+                                class="btn btn-sm btn-warning"
+                            >
+                                Edit
+                            </a>
+
+                            <a
+                                href="{% url 'flight-delete' flight.pk %}"
+                                class="btn btn-sm btn-danger"
+                            >
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No flights available.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}
