@@ -1,0 +1,51 @@
+{% extends "main/base.html" %}
+
+{% block title %}Bookings{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Bookings</h1>
+        <a href="{% url 'booking-create' %}" class="btn btn-primary">
+            + Create Booking
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>User</th>
+                <th>Flight</th>
+                <th>Booking number</th>
+                <th>Status</th>
+                <th>Created at</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.user }}</td>
+                    <td>{{ booking.flight }}</td>
+                    <td>{{ booking.booking_number }}</td>
+                    <td>{{ booking.get_status_display }}</td>
+                    <td>{{ booking.created_at }}</td>
+                    <td>
+                        <a href="{% url 'booking-edit' booking.pk %}"
+                           class="btn btn-sm btn-outline-primary" title="Edit">✏️</a>
+                        <a href="{% url 'booking-delete' booking.pk %}"
+                           class="btn btn-sm btn-outline-danger" title="Delete">❌</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No bookings found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock content %}
