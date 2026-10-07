@@ -9,4 +9,5 @@ class AirplaneForm(forms.ModelForm):
             "airline",
             "model",
             "registration_number",
+            "capacity",
         ]
