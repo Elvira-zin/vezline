@@ -1,6 +1,7 @@
 from django import forms
 
 from flights.models import Flight
+from airplanes.models import Airplane
 
 
 class FlightForm(forms.ModelForm):
@@ -14,6 +15,7 @@ class FlightForm(forms.ModelForm):
             "departure_time",
             "arrival_time",
             "status",
+            "price",
         ]
         widgets = {
             "departure_time": forms.DateTimeInput(
@@ -23,3 +25,7 @@ class FlightForm(forms.ModelForm):
                 attrs={"type": "datetime-local"}
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["airplane"].queryset = Airplane.objects.select_related("airline")

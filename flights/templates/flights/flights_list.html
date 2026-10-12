@@ -26,6 +26,7 @@
                     <th>Arrival</th>
                     <th>Departure time</th>
                     <th>Arrival time</th>
+                    <th>Price</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -40,7 +41,8 @@
                         <td>{{ flight.arrival_airport }}</td>
                         <td>{{ flight.departure_time }}</td>
                         <td>{{ flight.arrival_time }}</td>
-                        <td>{{ flight.status }}</td>
+                        <td>{{ flight.price }}</td>
+                        <td>{{ flight.get_status_display }}</td>
                         <td>
                             <a
                                 href="{% url 'flight-edit' flight.pk %}"
