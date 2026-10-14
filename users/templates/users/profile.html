@@ -1,0 +1,50 @@
+{% extends "main/base.html" %}
+
+{% block title %}My Profile | Vezline{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="profile-card">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="profile-avatar">
+                {{ user.email|first|upper }}
+            </div>
+
+            <div>
+                <div class="auth-eyebrow">Your account</div>
+                <h1 class="mb-1">My Profile</h1>
+                <p class="auth-description mb-0">
+                    Manage your personal information.
+                </p>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <span class="profile-label">Email address</span>
+            <div>{{ user.email }}</div>
+        </div>
+
+        <div class="profile-info">
+            <span class="profile-label">Phone number</span>
+            <div>{{ user.phone|default:"Not provided" }}</div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a href="{% url 'profile-edit' %}"
+               class="btn btn-info">
+                Edit profile
+            </a>
+
+            <a href="{% url 'home' %}"
+               class="btn btn-outline-light">
+                Back to home
+            </a>
+
+            <a href="{% url 'flight-list' %}"
+               class="btn btn-outline-info">
+                Explore flights
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

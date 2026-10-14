@@ -27,4 +27,7 @@ urlpatterns = [
     path("", include("main.urls")),
     path("flights/", include("flights.urls")),
     path("__debug__/", include("debug_toolbar.urls")),
+    path("admin/", admin.site.urls),
+    path("users/", include("users.urls")),
+    path("bookings/", include("bookings.urls")),
 ]
