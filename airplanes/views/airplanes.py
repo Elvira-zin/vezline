@@ -5,7 +5,7 @@ from airplanes.models import Airplane
 
 
 def airplanes_list(request):
-    airplanes = Airplane.objects.all()
+    airplanes = Airplane.objects.select_related("airline")
     return render(request, "airplanes/airplanes_list.html", {"airplanes": airplanes})
 
 def airplane_create(request):

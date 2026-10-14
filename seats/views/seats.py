@@ -5,7 +5,7 @@ from seats.models import Seat
 
 
 def seats_list(request):
-    seats = Seat.objects.all()
+    seats = Seat.objects.select_related("airplane__airline")
     return render(request, "seats/seats_list.html", {"seats": seats})
 
 def seat_create(request):

@@ -5,7 +5,7 @@ from flights.models import Flight
 
 
 def flight_list(request):
-    flights = Flight.objects.all()
+    flights = Flight.objects.select_related("airplane__airline", "departure_airport", "arrival_airport")
     return render(request, "flights/flights_list.html", {"flights": flights})
 
 def flight_create(request):

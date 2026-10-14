@@ -8,7 +8,7 @@ from bookings.models import Booking
 
 @login_required
 def booking_list(request):
-    bookings = Booking.objects.filter(user=request.user)
+    bookings = Booking.objects.filter(user=request.user).select_related("user", "flight")
     return render(request, "booking/booking_list.html", {"bookings": bookings})
 
 @login_required
