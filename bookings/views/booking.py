@@ -1,7 +1,9 @@
 import uuid
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 
 from bookings.forms.booking import BookingForm
 from bookings.models import Booking
@@ -57,6 +59,13 @@ def booking_delete(request, pk):
     )
 
     if booking.status == Booking.Status.CANCELLED:
+        return redirect("booking-list")
+
+    if booking.flight.departure_time <= timezone.now():
+        messages.error(
+            request,
+            "You cannot cancel a booking after the flight has departed."
+        )
         return redirect("booking-list")
 
     if request.method == "POST":
