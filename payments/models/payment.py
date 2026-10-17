@@ -64,7 +64,7 @@ class Payment(models.Model):
         if not self.transaction_id:
             self.transaction_id = f"{prefix}-{uuid.uuid4().hex.upper()}"
 
-        if not self.amount is None:
+        if self.amount is None:
             self.amount = self.booking.flight.price
 
         super().save(*args, **kwargs)
