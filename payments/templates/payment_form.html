@@ -1,14 +1,14 @@
 {% extends "main/base.html" %}
 
 {% block title %}
-  {% if form.instance.pk %}Edit Seat{% else %}Create Seat{% endif %}
+  {% if form.instance.pk %}Edit Payment{% else %}Create Payment{% endif %}
 {% endblock title %}
 
 {% block content %}
 <div class="container mt-5">
 
     <h1 class="mb-4">
-        {% if form.instance.pk %}Edit Seat{% else %}Create Seat{% endif %}
+        {% if form.instance.pk %}Edit Payment{% else %}Create Payment{% endif %}
     </h1>
 
     <form method="post">
@@ -18,7 +18,7 @@
         <button type="submit" class="btn btn-primary">
             {% if form.instance.pk %}Save changes{% else %}Create{% endif %}
         </button>
-        <a href="{% url 'seat-list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <a href="{% url 'payment-list' %}" class="btn btn-outline-secondary">Cancel</a>
     </form>
 
 </div>
