@@ -41,3 +41,18 @@ def payment_edit(request, pk):
         "payments/payment_form.html",
         {"form": form},
     )
+
+
+@login_required
+def payment_delete(request, pk):
+    payment = get_object_or_404(Payment, pk=pk, booking__user=request.user)
+
+    if request.method == "POST":
+        payment.delete()
+        return redirect("payment-list")
+
+    return render(
+        request,
+        "payments/payment_confirm_delete.html",
+        {"payment": payment},
+    )
