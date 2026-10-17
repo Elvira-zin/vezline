@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from payments.forms.payments import PaymentForm
 from payments.models import Payment
@@ -21,3 +21,23 @@ def payment_create(request):
     else:
         form = PaymentForm(user=request.user)
     return render(request, "payments/payment_form.html", {"form": form})
+
+
+@login_required
+def payment_edit(request, pk):
+    payment = get_object_or_404(Payment, pk=pk, booking__user=request.user)
+
+    if request.method == "POST":
+        form = PaymentForm(request.POST, user=request.user, instance=payment)
+
+        if form.is_valid():
+            form.save()
+            return redirect("payment-list")
+    else:
+        form = PaymentForm(user=request.user, instance=payment)
+
+    return render(
+        request,
+        "payments/payment_form.html",
+        {"form": form},
+    )
