@@ -10,4 +10,4 @@ class PaymentForm(forms.ModelForm):
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["booking"].queryset = Booking.objects.filter(user=user)
+        self.fields["booking"].queryset = Booking.objects.filter(user=user).select_related("flight")
