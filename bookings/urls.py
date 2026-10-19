@@ -3,7 +3,7 @@ from bookings.views.booking import (
     booking_list,
     booking_create,
     booking_edit,
-    booking_delete,
+    booking_delete, flight_seats,
 )
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path("create/", booking_create, name="booking-create"),
     path("<int:pk>/edit/", booking_edit, name="booking-edit"),
     path("<int:pk>/delete/", booking_delete, name="booking-delete"),
+    path("flights/<int:flight_id>/seats/",flight_seats,name="flight-seats",),
 ]
