@@ -6,12 +6,11 @@
 
 {% block content %}
 <div class="container mt-5">
-
     <h1 class="mb-4">
         {% if form.instance.pk %}Edit Booking{% else %}Create Booking{% endif %}
     </h1>
 
-    <form method="post">
+    <form method="post" id="booking-form">
         {% csrf_token %}
         {{ form.as_p }}
 
@@ -20,6 +19,56 @@
         </button>
         <a href="{% url 'booking-list' %}" class="btn btn-outline-secondary">Cancel</a>
     </form>
-
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const flightSelect = document.getElementById("id_flight");
+    const seatSelect = document.getElementById("id_seat");
+
+    if (!flightSelect || !seatSelect) return;
+
+    async function loadSeats(flightId, selectedSeatId = "") {
+        seatSelect.innerHTML = '<option value="">---------</option>';
+        seatSelect.disabled = true;
+
+        if (!flightId) {
+            seatSelect.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `/bookings/flights/${flightId}/seats/`
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to load seats");
+            }
+
+            const data = await response.json();
+
+            data.seats.forEach(function (seat) {
+                const option = document.createElement("option");
+                option.value = seat.id;
+                option.textContent = `${seat.number} — ${seat.seat_class}`;
+                option.selected = String(seat.id) === String(selectedSeatId);
+                seatSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            seatSelect.disabled = false;
+        }
+    }
+
+    flightSelect.addEventListener("change", function () {
+        loadSeats(flightSelect.value);
+    });
+
+    if (flightSelect.value) {
+        loadSeats(flightSelect.value, seatSelect.value);
+    }
+});
+</script>
 {% endblock content %}
