@@ -25,6 +25,7 @@
             <tr>
                 <th>User</th>
                 <th>Flight</th>
+                <th>Seat</th>
                 <th>Booking number</th>
                 <th>Status</th>
                 <th>Created at</th>
@@ -37,6 +38,12 @@
                 <tr>
                     <td>{{ booking.user }}</td>
                     <td>{{ booking.flight }}</td>
+                    <td>{% if booking.seat %}
+                            {{ booking.seat.number }} ({{ booking.seat.get_seat_class_display }})
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
                     <td>{{ booking.booking_number }}</td>
                     <td>{{ booking.get_status_display }}</td>
                     <td>{{ booking.created_at }}</td>
@@ -49,7 +56,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center">No bookings found.</td>
+                    <td colspan="7" class="text-center">No bookings found.</td>
                 </tr>
             {% endfor %}
         </tbody>

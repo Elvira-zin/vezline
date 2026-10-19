@@ -2,15 +2,20 @@ import uuid
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.views.decorators.http import require_GET
 
 from bookings.forms.booking import BookingForm
 from bookings.models import Booking
+from flights.models import Flight
+from seats.models import Seat
+
 
 @login_required
 def booking_list(request):
-    bookings = Booking.objects.filter(user=request.user).select_related("user", "flight")
+    bookings = Booking.objects.filter(user=request.user).select_related("user", "flight", "seat")
     return render(request, "booking/booking_list.html", {"bookings": bookings})
 
 @login_required
@@ -78,3 +83,24 @@ def booking_delete(request, pk):
         "booking/booking_confirm_delete.html",
         {"booking": booking}
     )
+
+@login_required
+@require_GET
+def flight_seats(request, flight_id):
+    flight = get_object_or_404(Flight, pk=flight_id)
+
+    seats = sorted(
+        Seat.objects.filter(airplane_id=flight.airplane_id),
+        key=lambda seat: int(seat.number) if seat.number.isdigit() else float("inf"),
+    )
+
+    return JsonResponse({
+        "seats": [
+            {
+                "id": seat.id,
+                "number": seat.number,
+                "seat_class": seat.get_seat_class_display(),
+            }
+            for seat in seats
+        ]
+    })
