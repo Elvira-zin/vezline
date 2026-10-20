@@ -1,14 +1,15 @@
 from django.urls import path
+
 from seats.views.seats import (
-    seats_list,
-    seat_create,
-    seat_edit,
-    seat_delete,
+    SeatListView,
+    SeatCreateView,
+    SeatUpdateView,
+    SeatDeleteView,
 )
 
 urlpatterns = [
-    path("", seats_list, name="seat-list"),
-    path("create/", seat_create, name="seat-create"),
-    path("<int:pk>/edit/", seat_edit, name="seat-edit"),
-    path("<int:pk>/delete/", seat_delete, name="seat-delete"),
+    path("", SeatListView.as_view(), name="seat-list"),
+    path("create/", SeatCreateView.as_view(), name="seat-create"),
+    path("<int:pk>/edit/", SeatUpdateView.as_view(), name="seat-edit"),
+    path("<int:pk>/delete/", SeatDeleteView.as_view(), name="seat-delete"),
 ]

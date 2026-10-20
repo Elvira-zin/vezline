@@ -1,4 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.db import transaction
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from airplanes.forms.airplanes import AirplaneForm
 from airplanes.models import Airplane
@@ -39,75 +42,61 @@ def sync_airplane_seats(airplane, economy_count, business_count, first_class_cou
 
     Seat.objects.bulk_create(seats_to_create)
 
-def airplanes_list(request):
-    airplanes = Airplane.objects.select_related("airline")
-    return render(request, "airplanes/airplanes_list.html", {"airplanes": airplanes})
+class AirplaneListView(ListView):
+    model = Airplane
+    template_name = "airplanes/airplanes_list.html"
+    context_object_name = "airplanes"
 
-def airplane_create(request):
-    if request.method == "POST":
-        form = AirplaneForm(request.POST)
-        if form.is_valid():
-            airplane = form.save()
+    def get_queryset(self):
+        return Airplane.objects.select_related("airline")
+
+
+class AirplaneCreateView(CreateView):
+    model = Airplane
+    form_class = AirplaneForm
+    template_name = "airplanes/airplane_form.html"
+    success_url = reverse_lazy("airplane-list")
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            response = super().form_valid(form)
 
             sync_airplane_seats(
-                airplane,
+                self.object,
                 economy_count=form.cleaned_data["economy_seats"],
                 business_count=form.cleaned_data["business_seats"],
                 first_class_count=form.cleaned_data["first_class_seats"],
             )
 
-            return redirect("airplane-list")
-    else:
-        form = AirplaneForm()
-    return render(request, "airplanes/airplane_form.html", {"form": form})
+        return response
 
-def airplane_edit(request, pk):
-    airplane = get_object_or_404(Airplane, pk=pk)
+class AirplaneUpdateView(UpdateView):
+    model = Airplane
+    form_class = AirplaneForm
+    template_name = "airplanes/airplane_form.html"
+    success_url = reverse_lazy("airplane-list")
 
-    if request.method == "POST":
-        form = AirplaneForm(request.POST, instance=airplane)
+    def form_valid(self, form):
+        if self.object.seats.exists():
+            form.add_error(
+                None,
+                "Seat classes cannot be changed after seats have been created.",
+            )
+            return self.form_invalid(form)
 
-        if form.is_valid():
-            economy_count = form.cleaned_data["economy_seats"]
-            business_count = form.cleaned_data["business_seats"]
-            first_class_count = form.cleaned_data["first_class_seats"]
+        with transaction.atomic():
+            response = super().form_valid(form)
 
-            existing_seats = airplane.seats.all()
+            sync_airplane_seats(
+                self.object,
+                economy_count=form.cleaned_data["economy_seats"],
+                business_count=form.cleaned_data["business_seats"],
+                first_class_count=form.cleaned_data["first_class_seats"],
+            )
 
-            if existing_seats.exists():
-                form.add_error(
-                    None,
-                    "Seat classes cannot be changed after seats have been created."
-                )
-            else:
-                airplane = form.save()
+        return response
 
-                sync_airplane_seats(
-                    airplane,
-                    economy_count=economy_count,
-                    business_count=business_count,
-                    first_class_count=first_class_count,
-                )
-
-                return redirect("airplane-list")
-    else:
-        form = AirplaneForm(instance=airplane)
-
-    return render(
-        request,
-        "airplanes/airplane_form.html",
-        {"form": form},
-    )
-
-def airplane_delete(request, pk):
-    airplane = get_object_or_404(Airplane, pk=pk)
-
-    if request.method == "POST":
-        airplane.delete()
-        return redirect("airplane-list")
-
-    return render(
-        request,
-        "airplanes/airplane_confirm_delete.html",
-        {"airplane": airplane}
-    )
+class AirplaneDeleteView(DeleteView):
+    model = Airplane
+    template_name = "airplanes/airplane_confirm_delete.html"
+    success_url = reverse_lazy("airplane-list")

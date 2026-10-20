@@ -1,58 +1,39 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from flights.forms.flights import FlightForm
 from flights.models import Flight
 
 
-def flight_list(request):
-    flights = Flight.objects.select_related("airplane__airline", "departure_airport", "arrival_airport")
-    return render(request, "flights/flights_list.html", {"flights": flights})
+class FlightListView(ListView):
+    model = Flight
+    template_name = "flights/flights_list.html"
+    context_object_name = "flights"
 
-def flight_create(request):
-    if request.method == "POST":
-        form = FlightForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return redirect("flight-list")
-    else:
-        form = FlightForm()
-
-    return render(
-        request,
-        "flights/flight_form.html",
-        {"form": form},
-    )
+    def get_queryset(self):
+        return Flight.objects.select_related(
+            "airplane__airline",
+            "departure_airport",
+            "arrival_airport",
+        )
 
 
-def flight_edit(request, pk):
-    flight = get_object_or_404(Flight, pk=pk)
-
-    if request.method == "POST":
-        form = FlightForm(request.POST, instance=flight)
-
-        if form.is_valid():
-            form.save()
-            return redirect("flight-list")
-    else:
-        form = FlightForm(instance=flight)
-
-    return render(
-        request,
-        "flights/flight_form.html",
-        {"form": form},
-    )
+class FlightCreateView(CreateView):
+    model = Flight
+    form_class = FlightForm
+    template_name = "flights/flight_form.html"
+    success_url = reverse_lazy("flight-list")
 
 
-def flight_delete(request, pk):
-    flight = get_object_or_404(Flight, pk=pk)
+class FlightUpdateView(UpdateView):
+    model = Flight
+    form_class = FlightForm
+    template_name = "flights/flight_form.html"
+    success_url = reverse_lazy("flight-list")
 
-    if request.method == "POST":
-        flight.delete()
-        return redirect("flight-list")
 
-    return render(
-        request,
-        "flights/flight_confirm_delete.html",
-        {"flight": flight},
-    )
+class FlightDeleteView(DeleteView):
+    model = Flight
+    template_name = "flights/flight_confirm_delete.html"
+    context_object_name = "flight"
+    success_url = reverse_lazy("flight-list")
