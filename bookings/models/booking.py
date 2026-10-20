@@ -7,6 +7,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 class Booking(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["flight", "seat"],condition=models.Q(status="CONFIRMED",seat__isnull=False,),name="unique_confirmed_flight_seat",),
+        ]
     class Status(models.TextChoices):
         CONFIRMED = "CONFIRMED", "Підтверджене"
         CANCELLED = "CANCELLED", "Скасоване"

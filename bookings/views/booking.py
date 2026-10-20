@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction, IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -22,14 +23,25 @@ def booking_list(request):
 def booking_create(request):
     if request.method == "POST":
         form = BookingForm(request.POST)
+
         if form.is_valid():
-            booking = form.save(commit=False)
-            booking.user = request.user
-            booking.booking_number = uuid.uuid4().hex[:8].upper()
-            booking.save()
-            return redirect("booking-list")
+            try:
+                with transaction.atomic():
+                    booking = form.save(commit=False)
+                    booking.user = request.user
+                    booking.booking_number = uuid.uuid4().hex[:8].upper()
+                    booking.save()
+
+                return redirect("booking-list")
+
+            except IntegrityError:
+                form.add_error(
+                    "seat",
+                    "This seat is already booked for this flight.",
+                )
     else:
         form = BookingForm()
+
     return render(request, "booking/booking_form.html", {"form": form})
 
 @login_required
