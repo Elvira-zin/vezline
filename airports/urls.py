@@ -1,9 +1,15 @@
 from django.urls import path
-from airports.views.airports import airport_edit, airport_create, airports_list, airport_delete
+
+from airports.views.airports import (
+    AirportListView,
+    AirportCreateView,
+    AirportUpdateView,
+    AirportDeleteView,
+)
 
 urlpatterns = [
-    path("", airports_list, name="airport-list"),
-    path("create/", airport_create, name="airport-create"),
-    path("<int:pk>/edit/", airport_edit, name="airport-edit"),
-    path("<int:pk>/delete/", airport_delete, name="airport-delete"),
+    path("", AirportListView.as_view(), name="airport-list"),
+    path("create/", AirportCreateView.as_view(), name="airport-create"),
+    path("<int:pk>/edit/", AirportUpdateView.as_view(), name="airport-edit"),
+    path("<int:pk>/delete/", AirportDeleteView.as_view(), name="airport-delete"),
 ]

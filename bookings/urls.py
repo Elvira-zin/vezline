@@ -1,15 +1,21 @@
 from django.urls import path
+
 from bookings.views.booking import (
-    booking_list,
-    booking_create,
-    booking_edit,
-    booking_delete, flight_seats,
+    BookingListView,
+    BookingCreateView,
+    BookingUpdateView,
+    BookingDeleteView,
+    flight_seats,
 )
 
 urlpatterns = [
-    path("", booking_list, name="booking-list"),
-    path("create/", booking_create, name="booking-create"),
-    path("<int:pk>/edit/", booking_edit, name="booking-edit"),
-    path("<int:pk>/delete/", booking_delete, name="booking-delete"),
-    path("flights/<int:flight_id>/seats/",flight_seats,name="flight-seats",),
+    path("", BookingListView.as_view(), name="booking-list"),
+    path("create/", BookingCreateView.as_view(), name="booking-create"),
+    path("<int:pk>/edit/", BookingUpdateView.as_view(), name="booking-edit"),
+    path("<int:pk>/delete/", BookingDeleteView.as_view(), name="booking-delete"),
+    path(
+        "flights/<int:flight_id>/seats/",
+        flight_seats,
+        name="flight-seats",
+    ),
 ]

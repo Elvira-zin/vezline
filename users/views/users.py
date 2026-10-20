@@ -1,43 +1,33 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import FormView, TemplateView, UpdateView
+
 from users.forms.auth import UserRegistrationForm
 from users.forms.profile import ProfileUpdateForm
 
 
-def register(request):
-    if request.method == "POST":
-        form = UserRegistrationForm(request.POST)
+class RegisterView(FormView):
+    template_name = "users/register.html"
+    form_class = UserRegistrationForm
+    success_url = reverse_lazy("login")
 
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data["password"])
-            user.save()
-            return redirect("login")
-    else:
-        form = UserRegistrationForm()
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.set_password(form.cleaned_data["password"])
+        user.save()
+        return super().form_valid(form)
 
-    return render(request, "users/register.html", {"form": form})
 
-@login_required
-def profile(request):
-    return render(request, "users/profile.html")
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "users/profile.html"
 
-@login_required
-def profile_edit(request):
-    if request.method == "POST":
-        form = ProfileUpdateForm(
-            request.POST,
-            instance=request.user,
-        )
 
-        if form.is_valid():
-            form.save()
-            return redirect("profile")
-    else:
-        form = ProfileUpdateForm(instance=request.user)
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = ProfileUpdateForm
+    template_name = "users/profile_edit.html"
+    success_url = reverse_lazy("profile")
 
-    return render(
-        request,
-        "users/profile_edit.html",
-        {"form": form},
-    )
+    def get_object(self, queryset=None):
+        return self.request.user
