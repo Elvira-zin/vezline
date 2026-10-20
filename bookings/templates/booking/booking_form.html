@@ -12,6 +12,11 @@
 
     <form method="post" id="booking-form">
         {% csrf_token %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
         {{ form.as_p }}
 
         <button type="submit" class="btn btn-primary">
