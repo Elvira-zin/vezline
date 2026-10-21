@@ -1,0 +1,19 @@
+{% extends "main/base.html" %}
+
+{% block title %}Delete Payment{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <h1 class="mb-3">Delete payment?</h1>
+    <p>{{ payment }}</p>
+    <p class="text-secondary">This action cannot be undone.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'payment-list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+
+</div>
+{% endblock content %}
