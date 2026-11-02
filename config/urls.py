@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from main import views
@@ -26,8 +28,12 @@ urlpatterns = [
     path("seats/", include("seats.urls")),
     path("", include("main.urls")),
     path("flights/", include("flights.urls")),
-    path("__debug__/", include("debug_toolbar.urls")),
     path("users/", include("users.urls")),
     path("bookings/", include("bookings.urls")),
     path("payments/", include("payments.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
+    # In development Django serves uploaded files itself; in production nginx does it
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
