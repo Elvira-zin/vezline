@@ -1,0 +1,17 @@
+{% comment %} Delete confirmation for the Manage pages.
+   Usage: {% url 'airport-list' as back_url %}
+          {% include "main/includes/confirm_delete.html" with noun="airport" back_url=back_url %} {% endcomment %}
+<div class="vz-page vz-page--narrow">
+    <div class="vz-panel vz-confirm">
+        <span class="vz-eyebrow">Manage · {{ noun|capfirst }}s</span>
+        <h1>Delete this {{ noun }}?</h1>
+        <p class="vz-confirm__object">{{ object }}</p>
+        <p class="vz-muted">This action cannot be undone.</p>
+
+        <form method="post" class="vz-form__foot">
+            {% csrf_token %}
+            <button type="submit" class="vz-btn vz-btn--danger">Yes, delete</button>
+            <a href="{{ back_url }}" class="vz-btn vz-btn--ghost">Cancel</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,311 @@
+/* Vezline home page · design "X1 · World map in an ellipse".
+   Shared tokens, nav and buttons come from vezline.css. */
+
+.vz-home { background: #FFFFFF; }
+
+/* ---------- Hero ---------- */
+
+.vz-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--vz-plum);
+    color: #FFFFFF;
+}
+
+.vz-hero__map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+}
+
+.vz-hero__inner {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.vz-hero__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 48px;
+    padding: 48px 0 96px;
+}
+
+.vz-hero__text {
+    flex: 999 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.vz-hero__text h1 {
+    font-size: clamp(38px, 4vw + 14px, 60px);
+    line-height: 1.04;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+
+.vz-hero__lead {
+    max-width: 520px;
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--vz-peach);
+}
+
+.vz-hero-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vz-hero-steps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(43, 22, 34, 0.75);
+    color: var(--vz-peach);
+}
+
+.vz-hero-steps li span {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 1.5px solid #D9A994;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.vz-hero-steps li.is-active { color: #FFFFFF; font-weight: 600; }
+
+.vz-hero-steps li.is-active span {
+    border: 0;
+    background: var(--vz-cta);
+    color: var(--vz-plum);
+    font-weight: 700;
+}
+
+/* ---------- Search card ---------- */
+
+.vz-search {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 28px;
+    border-radius: 20px;
+    background: #FFFFFF;
+    color: var(--vz-ink);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+}
+
+.vz-search__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.vz-search select,
+.vz-search input {
+    width: 100%;
+    min-width: 0;
+    font: inherit;
+    font-size: 17px;
+    padding: 14px;
+    border: 1.5px solid var(--vz-input);
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: var(--vz-ink);
+}
+
+.vz-search select:focus,
+.vz-search input:focus {
+    outline: 3px solid rgba(255, 159, 67, 0.45);
+    outline-offset: 1px;
+    border-color: var(--vz-cta);
+}
+
+.vz-search__note {
+    text-align: center;
+    font-size: 14px;
+    color: var(--vz-muted);
+}
+
+.vz-search .vz-btn--big { font-size: 19px; min-height: 60px; }
+
+/* ---------- Sections ---------- */
+
+.vz-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.vz-section:last-of-type { padding-bottom: 72px; }
+.vz-section + .vz-section { padding-top: 56px; }
+
+.vz-section__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+
+.vz-section__head h2 { font-size: 28px; font-weight: 700; }
+
+/* Search results */
+
+.vz-flights {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vz-flight {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 32px;
+    padding: 18px 22px;
+    border: 1.5px solid var(--vz-line);
+    border-radius: 16px;
+}
+
+.vz-flight__time,
+.vz-flight__route {
+    display: flex;
+    flex-direction: column;
+}
+
+.vz-flight__time { width: 160px; }
+
+.vz-flight__time strong {
+    font-family: var(--vz-font-head);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.vz-flight__route { flex: 1 1 200px; }
+
+.vz-flight__time span,
+.vz-flight__route span { font-size: 14px; color: var(--vz-muted); }
+
+.vz-flight__seats { font-size: 14px; font-weight: 600; color: var(--vz-muted); }
+.vz-flight__seats.is-low { color: var(--vz-warn); }
+
+.vz-flight__price { font-size: 20px; font-weight: 700; }
+
+.vz-results-empty {
+    padding: 24px;
+    border-radius: 16px;
+    background: var(--vz-soft);
+}
+
+.vz-results-empty p { margin-bottom: 8px; }
+.vz-results-empty a { font-weight: 600; }
+
+/* Filling up cards */
+
+.vz-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 16px;
+}
+
+.vz-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 22px;
+    border: 1.5px solid var(--vz-line);
+    border-radius: 16px;
+    color: var(--vz-ink);
+    text-decoration: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.vz-card:hover {
+    color: var(--vz-ink);
+    border-color: #D9C3CB;
+    box-shadow: 0 10px 24px rgba(43, 22, 34, 0.08);
+}
+
+.vz-card:hover .vz-btn { background: var(--vz-cta-hover); }
+
+.vz-card__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--vz-muted);
+}
+
+.vz-card__route {
+    font-family: var(--vz-font-head);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.vz-card__fill { display: flex; flex-direction: column; gap: 6px; }
+
+.vz-bar {
+    display: flex;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--vz-soft);
+    overflow: hidden;
+}
+
+.vz-bar span { background: var(--vz-bar); border-radius: 999px; }
+
+.vz-card__left { font-size: 14px; font-weight: 600; color: var(--vz-warn); }
+
+.vz-card__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--vz-soft);
+}
+
+.vz-card__price { font-size: 22px; font-weight: 700; }
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 600px) {
+    .vz-hero__inner,
+    .vz-section { padding-left: 16px; padding-right: 16px; }
+
+    /* the map is zoomed in on a tall phone hero, so keep it quieter behind the text */
+    .vz-hero__map { opacity: 0.55; }
+    .vz-hero__body { padding: 24px 0 56px; gap: 32px; }
+    .vz-hero__lead { font-size: 17px; }
+    .vz-search { padding: 20px; }
+    .vz-search__row { grid-template-columns: 1fr; }
+    .vz-flight { gap: 10px 20px; }
+    .vz-flight__time { width: auto; }
+    .vz-flight .vz-btn { flex: 1 1 100%; }
+}

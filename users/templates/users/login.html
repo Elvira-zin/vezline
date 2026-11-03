@@ -1,50 +1,41 @@
 {% extends "main/base.html" %}
 
-{% block title %}Login | Vezline{% endblock %}
+{% block title %}Log in · Vezline{% endblock %}
 
 {% block content %}
-<div class="auth-page">
-    <div class="auth-card">
-        <div class="auth-eyebrow">Welcome back</div>
-        <h1>Sign in to Vezline</h1>
-        <p class="auth-description">
-            Your next journey starts here.
-        </p>
+<div class="vz-page vz-page--auth">
+    <form method="post" class="vz-panel vz-form vz-auth" novalidate>
+        {% csrf_token %}
 
-        <form method="post">
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger">
-                    {{ form.non_field_errors }}
-                </div>
+        <div>
+            <span class="vz-eyebrow">Welcome back</span>
+            <h1>Log in to Vezline</h1>
+            {% if request.GET.next %}
+                <p class="vz-muted">Log in to keep your seat and pay.</p>
             {% endif %}
+        </div>
 
-            <div class="mb-3">
-                <label for="{{ form.username.id_for_label }}">
-                    Email address
-                </label>
-                {{ form.username }}
-                {{ form.username.errors }}
-            </div>
+        {% if form.non_field_errors %}
+            <div class="vz-alert vz-alert--error">{{ form.non_field_errors }}</div>
+        {% endif %}
 
-            <div class="mb-3">
-                <label for="{{ form.password.id_for_label }}">
-                    Password
-                </label>
-                {{ form.password }}
-                {{ form.password.errors }}
-            </div>
+        <div class="vz-field{% if form.username.errors %} has-error{% endif %}">
+            <label for="{{ form.username.id_for_label }}">Email address</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}<p class="vz-error">{{ error }}</p>{% endfor %}
+        </div>
 
-            <button type="submit" class="auth-btn">
-                Log in
-            </button>
-        </form>
+        <div class="vz-field{% if form.password.errors %} has-error{% endif %}">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+            {% for error in form.password.errors %}<p class="vz-error">{{ error }}</p>{% endfor %}
+        </div>
 
-        <p class="auth-footer">
-            Don't have an account?
-            <a href="{% url 'register' %}">Create an account</a>
+        <button type="submit" class="vz-btn vz-btn--big vz-btn--block">Log in</button>
+
+        <p class="vz-auth__foot">
+            Don't have an account? <a href="{% url 'register' %}">Create one</a>
         </p>
-    </div>
+    </form>
 </div>
 {% endblock %}

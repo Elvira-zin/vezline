@@ -1,25 +1,8 @@
 {% extends "main/base.html" %}
 
-{% block title %}
-  {% if form.instance.pk %}Edit Airplane{% else %}Create Airplane{% endif %}
-{% endblock title %}
+{% block title %}{% if form.instance.pk %}Edit airplane{% else %}Add airplane{% endif %} · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-
-    <h1 class="mb-4">
-        {% if form.instance.pk %}Edit Airplane{% else %}Create Airplane{% endif %}
-    </h1>
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-
-        <button type="submit" class="btn btn-primary">
-            {% if form.instance.pk %}Save changes{% else %}Create{% endif %}
-        </button>
-        <a href="{% url 'airplane-list' %}" class="btn btn-outline-secondary">Cancel</a>
-    </form>
-
-</div>
-{% endblock content %}
+    {% url 'airplane-list' as back_url %}
+    {% include "main/includes/object_form.html" with noun="airplane" back_url=back_url %}
+{% endblock %}

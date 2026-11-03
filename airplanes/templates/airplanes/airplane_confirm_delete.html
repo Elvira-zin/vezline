@@ -1,19 +1,8 @@
 {% extends "main/base.html" %}
 
-{% block title %}Delete Airplane{% endblock title %}
+{% block title %}Delete airplane · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-
-    <h1 class="mb-3">Delete airplane?</h1>
-    <p>{{ airplane }}</p>
-    <p class="text-secondary">This action cannot be undone.</p>
-
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url 'airplane-list' %}" class="btn btn-outline-secondary">Cancel</a>
-    </form>
-
-</div>
-{% endblock content %}
+    {% url 'airplane-list' as back_url %}
+    {% include "main/includes/confirm_delete.html" with noun="airplane" back_url=back_url %}
+{% endblock %}

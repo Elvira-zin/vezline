@@ -1,78 +1,163 @@
 {% extends "main/base.html" %}
+{% load static %}
 
-{% block title %}
-    Vezline
+{% block title %}Vezline · Flights from Gdańsk{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'main/css/home.css' %}">
 {% endblock %}
 
+{# The home page has its own navigation inside the hero #}
+{% block navbar %}{% endblock %}
+
 {% block content %}
+<div class="vz-home">
 
-<div class="container mt-5">
+    <section class="vz-hero">
+        <img class="vz-hero__map" src="{% static 'main/img/world-map.svg' %}" alt="">
 
-    <div class="welcome-card text-center text-white rounded-4 mb-5">
-        <div class="py-5">
-            <div class="fs-1 mb-3">✈️</div>
+        <div class="vz-hero__inner">
+            {% include "main/includes/navbar.html" %}
 
-            <h1 class="display-4 fw-bold mb-3">
-                Welcome to Vezline
-            </h1>
+            <div class="vz-hero__body">
+                <div class="vz-hero__text">
+                    <h1>Your seat on the next flight from Gdańsk.</h1>
+                    <p class="vz-hero__lead">Three steps, one page each. No account needed to look around.</p>
+                    <ol class="vz-hero-steps">
+                        <li class="is-active"><span>1</span>Search</li>
+                        <li><span>2</span>Pick a seat</li>
+                        <li><span>3</span>Pay</li>
+                    </ol>
+                </div>
 
-            <p class="lead mb-0">
-                Your journey starts here.
-            </p>
+                <form class="vz-search" method="get" action="{% url 'home' %}#results">
+                    <div class="vz-field">
+                        <label for="search-from">From</label>
+                        <select id="search-from" name="from">
+                            {% for airport in airports %}
+                                <option value="{{ airport.code }}" {% if airport.code == selected.origin %}selected{% endif %}>
+                                    {{ airport.city }} ({{ airport.code }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="vz-field">
+                        <label for="search-to">To</label>
+                        <select id="search-to" name="to">
+                            <option value="">Anywhere</option>
+                            {% for airport in airports %}
+                                <option value="{{ airport.code }}" {% if airport.code == selected.destination %}selected{% endif %}>
+                                    {{ airport.city }} ({{ airport.code }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="vz-search__row">
+                        <div class="vz-field">
+                            <label for="search-date">Date</label>
+                            <input id="search-date" type="date" name="date" min="{{ today }}" value="{{ selected.date }}">
+                        </div>
+                        <div class="vz-field">
+                            <label for="search-class">Class</label>
+                            <select id="search-class" name="class">
+                                {% for value, label in seat_classes %}
+                                    <option value="{{ value }}" {% if value == selected.seat_class %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="vz-btn vz-btn--big">Show flights and seats</button>
+
+                    <p class="vz-search__note">
+                        {% if booked_this_week %}
+                            {{ booked_this_week }} seat{{ booked_this_week|pluralize }} booked on Vezline this week
+                        {% else %}
+                            Be the first to book a seat this week
+                        {% endif %}
+                    </p>
+                </form>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <div class="d-flex justify-content-center gap-2 flex-wrap">
-        <a href="{% url 'airport-list' %}" class="btn btn-primary px-4">
-            Airports
-        </a>
+    {% if searched %}
+        <section class="vz-section" id="results">
+            <div class="vz-section__head">
+                <h2>
+                    {{ origin.city|default:selected.origin }} →
+                    {% if destination %}{{ destination.city }}{% else %}anywhere{% endif %}
+                    {% if travel_date %}<span class="vz-muted">· {{ travel_date|date:"D, j M" }}</span>{% endif %}
+                    {% if seat_class_label %}<span class="vz-muted">· {{ seat_class_label }}</span>{% endif %}
+                </h2>
+                <span class="vz-muted">
+                    {{ results|length }} flight{{ results|length|pluralize }} with free seats
+                </span>
+            </div>
 
-        <a href="{% url 'airline-list' %}" class="btn btn-primary px-4">
-            Airlines
-        </a>
+            {% if results %}
+                <ul class="vz-flights">
+                    {% for flight in results %}
+                        <li class="vz-flight">
+                            <div class="vz-flight__time">
+                                <strong>{{ flight.departure_time|time:"H:i" }} – {{ flight.arrival_time|time:"H:i" }}</strong>
+                                <span>{{ flight.departure_time|date:"D, j M" }}</span>
+                            </div>
+                            <div class="vz-flight__route">
+                                <strong>{{ flight.departure_airport.city }} → {{ flight.arrival_airport.city }}</strong>
+                                <span>{{ flight.flight_number }} · {{ flight.airplane.airline.name }}</span>
+                            </div>
+                            <div class="vz-flight__seats {% if flight.seats_left < 20 %}is-low{% endif %}">
+                                {{ flight.seats_left }} seat{{ flight.seats_left|pluralize }} left
+                            </div>
+                            <div class="vz-flight__price">{{ flight.price|floatformat:0 }} PLN</div>
+                            <a class="vz-btn" href="{% url 'booking-create' %}?flight={{ flight.pk }}">Pick seat</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="vz-results-empty">
+                    <p>No flights with free seats for this search. Try another date or leave “Date” empty.</p>
+                    <a href="{% url 'home' %}?from={{ selected.origin }}#results">Show all flights from {{ origin.city|default:selected.origin }}</a>
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
 
-        <a href="{% url 'airplane-list' %}" class="btn btn-primary px-4">
-            Airplanes
-        </a>
+    <section class="vz-section">
+        <div class="vz-section__head">
+            <h2>Filling up this week</h2>
+        </div>
 
-        <a href="{% url 'flight-list' %}" class="btn btn-primary px-4">
-            Flights
-        </a>
+        {% if filling_up %}
+            <div class="vz-cards">
+                {% for flight in filling_up %}
+                    <a class="vz-card" href="{% url 'booking-create' %}?flight={{ flight.pk }}">
+                        <span class="vz-card__meta">
+                            <span>{{ flight.flight_number }}</span>
+                            <span>{{ flight.departure_time|date:"D, j M · H:i" }}</span>
+                        </span>
+                        <span class="vz-card__route">{{ flight.departure_airport.city }} → {{ flight.arrival_airport.city }}</span>
+                        <span class="vz-card__fill">
+                            <span class="vz-bar" role="img" aria-label="{{ flight.fill_percent }}% of seats booked">
+                                <span style="width: {{ flight.fill_percent|default:0 }}%"></span>
+                            </span>
+                            <span class="vz-card__left">{{ flight.seats_left }} seat{{ flight.seats_left|pluralize }} left</span>
+                        </span>
+                        <span class="vz-card__foot">
+                            <span class="vz-card__price">{{ flight.price|floatformat:0 }} PLN</span>
+                            <span class="vz-btn vz-btn--small">Pick seat</span>
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="vz-muted">No upcoming flights this week yet.</p>
+        {% endif %}
+    </section>
 
-        <a href="{% url 'booking-list' %}" class="btn btn-primary px-4">
-            Bookings
-        </a>
-    </div>
 
 </div>
-
-<style>
-    .welcome-card {
-        position: relative;
-        overflow: hidden;
-        background:
-            radial-gradient(circle at 20% 30%, rgba(80, 120, 255, 0.35), transparent 25%),
-            radial-gradient(circle at 80% 70%, rgba(120, 70, 255, 0.3), transparent 25%),
-            linear-gradient(135deg, #020617, #0b1b3d, #111827);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-    }
-
-    .welcome-card::before {
-        content: "✦  ·  ⋆  ·  ✧  ·  ⋆  ·  ✦  ·  ⋆  ·  ✧  ·  ⋆  ·  ✦";
-        position: absolute;
-        inset: 20px;
-        color: rgba(255, 255, 255, 0.45);
-        font-size: 14px;
-        letter-spacing: 18px;
-        line-height: 45px;
-        pointer-events: none;
-    }
-
-    .welcome-card > div {
-        position: relative;
-        z-index: 1;
-    }
-</style>
-
 {% endblock %}
