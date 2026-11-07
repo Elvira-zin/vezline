@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 {% load static vezline %}
 
-{% block title %}Vezline · Flights from Gdańsk{% endblock %}
+{% block title %}Vezline · Flights from {{ origin.city|default:"Gdańsk" }}{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'main/css/home.css' %}">
@@ -21,7 +21,7 @@
 
             <div class="vz-hero__body">
                 <div class="vz-hero__text">
-                    <h1>Your seat on the next flight from Gdańsk.</h1>
+                    <h1>Your seat on the next flight from <span id="hero-origin">{{ origin.city|default:"Gdańsk" }}</span>.</h1>
                     <p class="vz-hero__lead">Three steps, one page each. No account needed to look around.</p>
                     <ol class="vz-hero-steps">
                         <li class="is-active"><span>1</span>Search</li>
@@ -35,7 +35,7 @@
                         <label for="search-from">From</label>
                         <select id="search-from" name="from">
                             {% for airport in airports %}
-                                <option value="{{ airport.code }}" {% if airport.code == selected.origin %}selected{% endif %}>
+                                <option value="{{ airport.code }}" data-city="{{ airport.city }}" {% if airport.code == selected.origin %}selected{% endif %}>
                                     {{ airport.city }} ({{ airport.code }})
                                 </option>
                             {% endfor %}
@@ -160,4 +160,15 @@
 
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // The headline follows the "From" airport right away, before the search is sent
+    document.getElementById("search-from")?.addEventListener("change", function (event) {
+        const city = event.target.selectedOptions[0]?.dataset.city;
+        const headline = document.getElementById("hero-origin");
+        if (city && headline) headline.textContent = city;
+    });
+</script>
 {% endblock %}

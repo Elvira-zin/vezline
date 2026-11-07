@@ -75,6 +75,13 @@ class HomePageTests(TestCase):
         self.assertEqual(list(response.context["results"]), [self.flight])
         self.assertContains(response, f'{reverse("booking-create")}?flight={self.flight.pk}')
 
+    def test_headline_follows_chosen_origin(self):
+        self.assertContains(self.client.get(reverse("home")), '<span id="hero-origin">Gdańsk</span>')
+        self.assertContains(
+            self.client.get(reverse("home"), {"from": "WAW"}),
+            '<span id="hero-origin">Warsaw</span>',
+        )
+
     def test_search_wrong_date_gives_empty_results(self):
         response = self.client.get(reverse("home"), {"from": "GDN", "date": "2000-01-01"})
 
