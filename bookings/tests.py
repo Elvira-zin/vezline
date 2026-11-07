@@ -125,4 +125,4 @@ class BookingFlowTests(TestCase):
         response = self.client.get(reverse("payment-create"), {"booking": booking.pk})
 
         self.assertEqual(response.context["booking"], booking)
-        self.assertContains(response, "Pay 349 PLN")
+        self.assertContains(response, "Pay 349 USD")

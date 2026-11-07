@@ -37,7 +37,7 @@
                         <td>{{ flight.departure_time|date:"D, j M · H:i" }}</td>
                         <td>{{ flight.arrival_time|date:"D, j M · H:i" }}</td>
                         <td>{{ flight.airplane.registration_number }}</td>
-                        <td><span class="vz-strong">{{ flight.price|floatformat:0 }} PLN</span></td>
+                        <td><span class="vz-strong">{{ flight.price|money }}</span></td>
                         <td><span class="vz-badge vz-badge--{{ flight.status|status_badge }}">{{ flight.status|choice_label }}</span></td>
                         <td class="vz-table__actions">
                             <a href="{% url 'flight-edit' flight.pk %}" class="vz-btn vz-btn--small vz-btn--ghost">Edit</a>

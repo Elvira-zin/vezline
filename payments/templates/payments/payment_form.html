@@ -33,7 +33,7 @@
                     Booking {{ booking.booking_number }}{% if booking.seat %} · seat {{ booking.seat.number }} ({{ booking.seat.seat_class|choice_label }}){% endif %}
                 </span>
             </div>
-            <span class="vz-summary__price">{{ booking.flight.price|floatformat:0 }} PLN</span>
+            <span class="vz-summary__price">{{ booking.flight.price|money }}</span>
         </section>
     {% endif %}
 
@@ -74,7 +74,7 @@
 
         <div class="vz-form__foot">
             <button type="submit" class="vz-btn vz-btn--big">
-                {% if form.instance.pk %}Save changes{% elif booking %}Pay {{ booking.flight.price|floatformat:0 }} PLN{% else %}Pay{% endif %}
+                {% if form.instance.pk %}Save changes{% elif booking %}Pay {{ booking.flight.price|money }}{% else %}Pay{% endif %}
             </button>
             <a href="{% url 'payment-list' %}" class="vz-btn vz-btn--ghost">Cancel</a>
         </div>

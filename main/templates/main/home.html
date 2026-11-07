@@ -1,5 +1,5 @@
 {% extends "main/base.html" %}
-{% load static %}
+{% load static vezline %}
 
 {% block title %}Vezline · Flights from Gdańsk{% endblock %}
 
@@ -112,7 +112,7 @@
                             <div class="vz-flight__seats {% if flight.seats_left < 20 %}is-low{% endif %}">
                                 {{ flight.seats_left }} seat{{ flight.seats_left|pluralize }} left
                             </div>
-                            <div class="vz-flight__price">{{ flight.price|floatformat:0 }} PLN</div>
+                            <div class="vz-flight__price">{{ flight.price|money }}</div>
                             <a class="vz-btn" href="{% url 'booking-create' %}?flight={{ flight.pk }}">Pick seat</a>
                         </li>
                     {% endfor %}
@@ -147,7 +147,7 @@
                             <span class="vz-card__left">{{ flight.seats_left }} seat{{ flight.seats_left|pluralize }} left</span>
                         </span>
                         <span class="vz-card__foot">
-                            <span class="vz-card__price">{{ flight.price|floatformat:0 }} PLN</span>
+                            <span class="vz-card__price">{{ flight.price|money }}</span>
                             <span class="vz-btn vz-btn--small">Pick seat</span>
                         </span>
                     </a>

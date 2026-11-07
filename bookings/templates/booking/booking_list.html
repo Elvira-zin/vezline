@@ -63,7 +63,7 @@
                             {% if booking.status == 'CONFIRMED' and flight.departure_time > now %}
                                 <div class="vz-actions">
                                     {% if not booking.payment %}
-                                        <a class="vz-btn vz-btn--small" href="{% url 'payment-create' %}?booking={{ booking.pk }}">Pay {{ flight.price|floatformat:0 }} PLN</a>
+                                        <a class="vz-btn vz-btn--small" href="{% url 'payment-create' %}?booking={{ booking.pk }}">Pay {{ flight.price|money }}</a>
                                     {% endif %}
                                     <a class="vz-btn vz-btn--small vz-btn--ghost" href="{% url 'booking-edit' booking.pk %}">Change seat</a>
                                     <a class="vz-link-danger" href="{% url 'booking-delete' booking.pk %}">Cancel booking</a>

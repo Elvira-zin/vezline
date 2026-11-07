@@ -43,7 +43,7 @@
                     {{ flight.departure_time|date:"l, j F" }} · {{ flight.departure_time|time:"H:i" }} – {{ flight.arrival_time|time:"H:i" }}
                 </span>
             </div>
-            <span class="vz-summary__price">{{ flight.price|floatformat:0 }} PLN</span>
+            <span class="vz-summary__price">{{ flight.price|money }}</span>
         </section>
 
         <form method="post" id="booking-form" class="vz-booking">

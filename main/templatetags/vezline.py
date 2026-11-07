@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 register = template.Library()
 
@@ -29,3 +30,11 @@ def choice_label(value):
 def status_badge(value):
     """CSS modifier for .vz-badge: {{ booking.status|status_badge }} -> "ok"."""
     return STATUS_BADGES.get(str(value), "")
+
+
+@register.filter
+def money(value):
+    """Price with the site currency: Decimal("459.00") -> "459 USD"."""
+    if value in (None, ""):
+        return ""
+    return f"{value:,.0f} {settings.CURRENCY}"
