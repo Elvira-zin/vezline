@@ -1,0 +1,222 @@
+/* Seat map on the booking page */
+
+.vz-booking {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+    gap: 24px 40px;
+}
+
+.vz-booking > .vz-alert { grid-column: 1 / -1; }
+
+.vz-booking__side {
+    position: sticky;
+    top: 20px;
+}
+
+.vz-booking__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vz-booking__choice {
+    font-family: var(--vz-font-head);
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.vz-booking__free { font-size: 14px; }
+
+/* Legend */
+
+.vz-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 20px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    color: var(--vz-muted);
+}
+
+.vz-legend li { display: flex; align-items: center; gap: 8px; }
+.vz-legend .vz-seat { width: 22px; height: 24px; pointer-events: none; }
+.vz-legend .vz-seat span { border-radius: 6px 6px 4px 4px; }
+
+/* Cabin */
+
+.vz-cabin-wrap { min-width: 0; }
+
+.vz-cabin {
+    --seat: 42px;
+    --gap: 8px;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 28px 28px;
+    border: 1.5px solid var(--vz-line);
+    border-radius: 140px 140px 48px 48px;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap);
+}
+
+.vz-cabin__nose {
+    width: 100%;
+    height: 64px;
+    border-bottom: 1px dashed var(--vz-line);
+    margin-bottom: 8px;
+    background: radial-gradient(ellipse 34% 40% at 50% 100%, var(--vz-soft) 0 98%, transparent 100%);
+}
+
+.vz-cabin__tail { height: 12px; }
+
+.vz-cabin__row {
+    display: grid;
+    grid-template-columns: repeat(3, var(--seat)) 34px repeat(3, var(--seat));
+    gap: var(--gap);
+    align-items: center;
+}
+
+.vz-cabin__letters span {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vz-muted);
+}
+
+.vz-cabin__aisle {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vz-muted);
+}
+
+.vz-cabin__class {
+    align-self: stretch;
+    margin: 10px 0 2px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--vz-line);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vz-warn);
+}
+
+.vz-cabin__letters + .vz-cabin__class { border-top: 0; margin-top: 0; padding-top: 0; }
+
+.vz-cabin__other {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap);
+    max-width: calc(6 * var(--seat) + 5 * var(--gap) + 34px);
+}
+
+.vz-cabin__none { padding: 24px; }
+
+/* One seat: a radio button styled as a seat */
+
+.vz-seat {
+    position: relative;
+    display: block;
+    width: var(--seat, 42px);
+    height: calc(var(--seat, 42px) + 4px);
+}
+
+.vz-seat input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.vz-seat > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border: 1.5px solid var(--vz-input);
+    border-bottom-width: 4px;
+    border-radius: 10px 10px 6px 6px;
+    background: #FFFFFF;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vz-muted);
+    transition: transform 0.1s, background 0.1s;
+}
+
+.vz-seat--business > span { background: #FBE6D8; border-color: #E5B79C; color: var(--vz-warn); }
+.vz-seat--first > span { background: #F4D2C4; border-color: #CF8F76; color: #6E2A1C; }
+
+.vz-seat--none { visibility: hidden; }
+
+.vz-seat input:hover + span { border-color: var(--vz-plum); transform: translateY(-1px); }
+
+.vz-seat input:focus-visible + span {
+    outline: 3px solid rgba(255, 159, 67, 0.7);
+    outline-offset: 2px;
+}
+
+.vz-seat input:checked + span,
+.vz-seat.is-picked > span {
+    background: var(--vz-cta);
+    border-color: var(--vz-plum);
+    color: var(--vz-plum);
+    font-weight: 700;
+}
+
+.vz-seat.is-taken > span,
+.vz-seat input:disabled + span {
+    background: repeating-linear-gradient(135deg, #ECE6E8 0 4px, #E2D9DC 4px 8px);
+    border-color: #E2D9DC;
+    color: #B3A5AB;
+    transform: none;
+}
+
+.vz-seat input:disabled { cursor: not-allowed; }
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 900px) {
+    .vz-booking { grid-template-columns: 1fr; }
+
+    /* the choice + button stay visible at the bottom while scrolling the plane */
+    .vz-booking__side {
+        position: sticky;
+        top: auto;
+        bottom: 0;
+        z-index: 5;
+        order: 2;
+    }
+
+    .vz-booking__panel {
+        gap: 8px;
+        padding: 14px 16px;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -12px 30px rgba(43, 22, 34, 0.12);
+    }
+
+    .vz-booking__panel > .vz-field__label,
+    .vz-booking__panel > .vz-booking__free,
+    .vz-booking__panel > .vz-btn--ghost { display: none; }
+
+    .vz-booking__choice { font-size: 18px; }
+    .vz-booking__panel > .vz-btn { min-height: 48px; font-size: 16px; }
+}
+
+@media (max-width: 420px) {
+    .vz-cabin { --seat: 36px; --gap: 6px; padding: 0 14px 20px; border-radius: 110px 110px 36px 36px; }
+    .vz-cabin__row { grid-template-columns: repeat(3, var(--seat)) 26px repeat(3, var(--seat)); }
+}

@@ -1,60 +1,51 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}Airports{% endblock title %}
+{% block title %}Airports · Manage · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Airports</h1>
-        <a href="{% url 'airport-create' %}" class="btn btn-primary">
-            + Create Airport
-        </a>
+    <div class="vz-page-head">
+        <div>
+            <span class="vz-eyebrow">Manage</span>
+            <h1>Airports</h1>
+            <p>{{ airports|length }} in total</p>
+        </div>
+        <a href="{% url 'airport-create' %}" class="vz-btn">Add airport</a>
     </div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>City</th>
-                <th>Country</th>
-                <th>Code</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for airport in airports %}
+    <div class="vz-table-wrap">
+        <table class="vz-table">
+            <thead>
                 <tr>
-                    <td>{{ airport.name }}</td>
-                    <td>{{ airport.city }}</td>
-                    <td>{{ airport.country }}</td>
-                    <td>{{ airport.code }}</td>
-                    <td>
-                      <a
-                              href="{% url 'airport-edit' airport.pk %}"
-                              class="btn btn-sm btn-outline-primary"
-                      >
-                                Edit
-                      </a>
-
-                      <a
-                             href="{% url 'airport-delete' airport.pk %}"
-                              class="btn btn-sm btn-outline-danger"
-                      >
-                                Delete
-                      </a>
-                    </td>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th class="vz-table__actions"><span class="vz-visually-hidden">Actions</span></th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">
-                        No airports found.
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for airport in airports %}
+                    <tr>
+                        <td><span class="vz-badge vz-badge--seat">{{ airport.code }}</span></td>
+                        <td><span class="vz-strong">{{ airport.name }}</span></td>
+                        <td>{{ airport.city }}</td>
+                        <td>{{ airport.country }}</td>
+                        <td class="vz-table__actions">
+                            <a href="{% url 'airport-edit' airport.pk %}" class="vz-btn vz-btn--small vz-btn--ghost">Edit</a>
+                            <a href="{% url 'airport-delete' airport.pk %}" class="vz-btn vz-btn--small vz-btn--ghost vz-link-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="vz-table__empty">No airports yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
-{% endblock content %}
+{% endblock %}

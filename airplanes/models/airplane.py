@@ -18,12 +18,12 @@ class Airplane(models.Model):
         if self.capacity is None:
             return
 
-        numbers = self.seats.values_list("number", flat=True)
-        max_number = max((int(n) for n in numbers if n.isdigit()), default=0)
+        # Seat numbers are like "12C", so compare with how many seats exist
+        seats_count = self.seats.count()
 
-        if self.capacity < max_number:
+        if self.capacity < seats_count:
             raise ValidationError({
-                "capacity": f"Capacity cannot be lower than {max_number}: "
-                            f"this airplane already has a seat with that number. "
-                            f"Delete seats above the new capacity first."
+                "capacity": f"Capacity cannot be lower than {seats_count}: "
+                            f"this airplane already has {seats_count} seats. "
+                            f"Delete some seats first."
             })

@@ -1,79 +1,156 @@
 {% extends "main/base.html" %}
+{% load static vezline %}
 
-{% block title %}
-  {% if form.instance.pk %}Edit Booking{% else %}Create Booking{% endif %}
-{% endblock title %}
+{% block title %}{% if form.instance.pk %}Change seat{% else %}Pick a seat{% endif %} · Vezline{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'main/css/booking.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">
-        {% if form.instance.pk %}Edit Booking{% else %}Create Booking{% endif %}
-    </h1>
+<div class="vz-page">
 
-    <form method="post" id="booking-form">
-        {% csrf_token %}
-        {% for field in form %}
-            {% for error in field.errors %}
-                <p class="text-danger">{{ error }}</p>
-            {% endfor %}
-        {% endfor %}
-        {{ form.as_p }}
+    {% if form.instance.pk %}
+        <div class="vz-page-head">
+            <div>
+                <span class="vz-eyebrow">My bookings · {{ form.instance.booking_number }}</span>
+                <h1>Change your seat</h1>
+                <p>Pick any free seat — your current one is highlighted.</p>
+            </div>
+        </div>
+    {% else %}
+        <ol class="vz-steps" aria-label="Booking steps">
+            <li class="is-done"><span aria-hidden="true">✓</span>Search</li>
+            <li class="is-active" aria-current="step"><span>2</span>Pick a seat</li>
+            <li><span>3</span>Pay</li>
+        </ol>
+        <div class="vz-page-head">
+            <div>
+                <h1>Pick your seat</h1>
+                <p>Click a free seat on the plane. Grey seats are already taken.</p>
+            </div>
+        </div>
+    {% endif %}
 
-        <button type="submit" class="btn btn-primary">
-            {% if form.instance.pk %}Save changes{% else %}Create{% endif %}
-        </button>
-        <a href="{% url 'booking-list' %}" class="btn btn-outline-secondary">Cancel</a>
-    </form>
+    {% if flight %}
+        <section class="vz-summary" aria-label="Flight">
+            <div class="vz-summary__main">
+                <span class="vz-summary__route">{{ flight.departure_airport.city }} → {{ flight.arrival_airport.city }}</span>
+                <span class="vz-summary__meta">
+                    {{ flight.flight_number }} · {{ flight.airplane.airline.name }} · {{ flight.airplane.model }}
+                </span>
+                <span class="vz-summary__meta">
+                    {{ flight.departure_time|date:"l, j F" }} · {{ flight.departure_time|time:"H:i" }} – {{ flight.arrival_time|time:"H:i" }}
+                </span>
+            </div>
+            <span class="vz-summary__price">{{ flight.price|money }}</span>
+        </section>
+
+        <form method="post" id="booking-form" class="vz-booking">
+            {% csrf_token %}
+            {{ form.flight }}
+
+            {% if form.non_field_errors %}
+                <div class="vz-alert vz-alert--error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="vz-cabin-wrap">
+                <ul class="vz-legend" aria-label="Legend">
+                    <li><span class="vz-seat vz-seat--economy"><span></span></span>Economy</li>
+                    <li><span class="vz-seat vz-seat--business"><span></span></span>Business</li>
+                    <li><span class="vz-seat vz-seat--first"><span></span></span>First</li>
+                    <li><span class="vz-seat is-taken"><span></span></span>Taken</li>
+                    <li><span class="vz-seat is-picked"><span></span></span>Your seat</li>
+                </ul>
+
+                <div class="vz-cabin" role="radiogroup" aria-label="Seats on the plane">
+                    <div class="vz-cabin__nose" aria-hidden="true"></div>
+
+                    <div class="vz-cabin__row vz-cabin__letters" aria-hidden="true">
+                        <span>A</span><span>B</span><span>C</span>
+                        <span class="vz-cabin__aisle"></span>
+                        <span>D</span><span>E</span><span>F</span>
+                    </div>
+
+                    {% for row in seat_map.rows %}
+                        {% if row.class_start %}
+                            <div class="vz-cabin__class">{{ row.class_start|choice_label }}</div>
+                        {% endif %}
+                        <div class="vz-cabin__row">
+                            {% for cell in row.left %}{% include "booking/includes/seat.html" %}{% endfor %}
+                            <span class="vz-cabin__aisle">{{ row.number }}</span>
+                            {% for cell in row.right %}{% include "booking/includes/seat.html" %}{% endfor %}
+                        </div>
+                    {% empty %}
+                        <p class="vz-muted vz-cabin__none">This airplane has no seats yet.</p>
+                    {% endfor %}
+
+                    {% if seat_map.other %}
+                        <div class="vz-cabin__class">Other seats</div>
+                        <div class="vz-cabin__other">
+                            {% for cell in seat_map.other %}{% include "booking/includes/seat.html" %}{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="vz-cabin__tail" aria-hidden="true"></div>
+                </div>
+            </div>
+
+            <aside class="vz-booking__side">
+                <div class="vz-panel vz-booking__panel">
+                    <span class="vz-field__label">Your seat</span>
+                    <p class="vz-booking__choice" id="seat-choice">
+                        {% if seat_map.selected %}{{ seat_map.selected.number }} · {{ seat_map.selected.seat_class|choice_label }}{% else %}Not chosen yet{% endif %}
+                    </p>
+                    {% for error in form.seat.errors %}
+                        <p class="vz-error">{{ error }}</p>
+                    {% endfor %}
+                    <p class="vz-muted vz-booking__free">{{ seat_map.free }} of {{ seat_map.total }} seats free</p>
+
+                    {% if form.instance.pk %}
+                        <button type="submit" class="vz-btn vz-btn--big vz-btn--block">Save new seat</button>
+                        <a href="{% url 'booking-list' %}" class="vz-btn vz-btn--ghost vz-btn--block">Cancel</a>
+                    {% else %}
+                        <button type="submit" class="vz-btn vz-btn--big vz-btn--block">Continue to payment</button>
+                        <a href="{% url 'home' %}?from={{ flight.departure_airport.code }}&to={{ flight.arrival_airport.code }}#results" class="vz-btn vz-btn--ghost vz-btn--block">Other flights</a>
+                    {% endif %}
+                </div>
+            </aside>
+        </form>
+    {% else %}
+        <div class="vz-panel">
+            <h2>Choose a flight first</h2>
+            <form method="get" class="vz-form">
+                <div class="vz-field">
+                    <label for="pick-flight">Flight</label>
+                    <select id="pick-flight" name="flight" required>
+                        {% for upcoming in upcoming_flights %}
+                            <option value="{{ upcoming.pk }}">
+                                {{ upcoming.departure_time|date:"D, j M · H:i" }} · {{ upcoming.flight_number }} · {{ upcoming.departure_airport.city }} → {{ upcoming.arrival_airport.city }}
+                            </option>
+                        {% empty %}
+                            <option value="">No upcoming flights</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="vz-form__foot">
+                    <button type="submit" class="vz-btn">Show seats</button>
+                    <a href="{% url 'home' %}">or search on the home page</a>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const flightSelect = document.getElementById("id_flight");
-    const seatSelect = document.getElementById("id_seat");
-
-    if (!flightSelect || !seatSelect) return;
-
-    async function loadSeats(flightId, selectedSeatId = "") {
-        seatSelect.innerHTML = '<option value="">---------</option>';
-        seatSelect.disabled = true;
-
-        if (!flightId) {
-            seatSelect.disabled = false;
-            return;
-        }
-
-        try {
-            const response = await fetch(
-                `/bookings/flights/${flightId}/seats/`
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to load seats");
-            }
-
-            const data = await response.json();
-
-            data.seats.forEach(function (seat) {
-                const option = document.createElement("option");
-                option.value = seat.id;
-                option.textContent = `${seat.number} — ${seat.seat_class}`;
-                option.selected = String(seat.id) === String(selectedSeatId);
-                seatSelect.appendChild(option);
-            });
-        } catch (error) {
-            console.error(error);
-        } finally {
-            seatSelect.disabled = false;
-        }
-    }
-
-    flightSelect.addEventListener("change", function () {
-        loadSeats(flightSelect.value);
+    // Show the picked seat in the side panel without reloading the page
+    document.addEventListener("change", function (event) {
+        if (event.target.name !== "seat") return;
+        const choice = document.getElementById("seat-choice");
+        if (choice) choice.textContent = event.target.dataset.label;
     });
-
-    if (flightSelect.value) {
-        loadSeats(flightSelect.value, seatSelect.value);
-    }
-});
 </script>
-{% endblock content %}
+{% endblock %}

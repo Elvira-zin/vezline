@@ -1,0 +1,9 @@
+{% if messages %}
+    <div class="vz-wrap vz-messages" role="status">
+        {% for message in messages %}
+            <div class="vz-alert vz-alert--{% if message.level_tag == 'error' %}error{% elif message.level_tag == 'success' %}success{% elif message.level_tag == 'warning' %}warning{% else %}info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

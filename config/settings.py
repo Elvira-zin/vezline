@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 from decouple import RepositoryEnv, Config, Csv
 
@@ -145,19 +146,31 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Currency shown next to every price on the site (Payment.currency uses the same "USD")
+CURRENCY = "USD"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# True while `manage.py test` runs: Debug Toolbar refuses to work in tests
+# (debug_toolbar.E001) and SQL logging would flood the test output.
+TESTING = "test" in sys.argv
+
 # Development-only tools: Debug Toolbar and SQL query logging
-if DEBUG:
+if DEBUG and not TESTING:
     import socket
 
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE.insert(1, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    # Inside Docker the browser comes from the gateway IP (x.x.x.1), so add it.
+    # If the hostname can't be resolved (no network / DNS glitch), don't crash.
+    try:
+        _, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    except socket.gaierror:
+        ips = []
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1"]
 
     DEBUG_TOOLBAR_CONFIG = {

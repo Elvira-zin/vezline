@@ -1,66 +1,87 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}Bookings{% endblock title %}
+{% block title %}My bookings · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-danger alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Bookings</h1>
-        <a href="{% url 'booking-create' %}" class="btn btn-primary">
-            + Create Booking
-        </a>
+    <div class="vz-page-head">
+        <div>
+            <h1>My bookings</h1>
+            <p>{{ bookings|length }} booking{{ bookings|length|pluralize }}</p>
+        </div>
+        <a href="{% url 'home' %}" class="vz-btn">Book a flight</a>
     </div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>User</th>
-                <th>Flight</th>
-                <th>Seat</th>
-                <th>Booking number</th>
-                <th>Status</th>
-                <th>Created at</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
+    {% if bookings %}
+        <ul class="vz-tickets">
             {% for booking in bookings %}
-                <tr>
-                    <td>{{ booking.user }}</td>
-                    <td>{{ booking.flight }}</td>
-                    <td>{% if booking.seat %}
-                            {{ booking.seat.number }} ({{ booking.seat.get_seat_class_display }})
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
-                    <td>{{ booking.booking_number }}</td>
-                    <td>{{ booking.get_status_display }}</td>
-                    <td>{{ booking.created_at }}</td>
-                    <td>
-                        <a href="{% url 'booking-edit' booking.pk %}"
-                           class="btn btn-sm btn-outline-primary" title="Edit">✏️</a>
-                        <a href="{% url 'booking-delete' booking.pk %}"
-                           class="btn btn-sm btn-outline-danger" title="Delete">❌</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center">No bookings found.</td>
-                </tr>
+                {% with flight=booking.flight %}
+                    <li class="vz-ticket{% if booking.status == 'CANCELLED' or flight.departure_time < now %} is-muted{% endif %}">
+                        <div class="vz-ticket__main">
+                            <div class="vz-ticket__top">
+                                <span>{{ flight.flight_number }} · {{ flight.airplane.airline.name }}</span>
+                                {% if flight.departure_time < now %}
+                                    <span class="vz-badge">Departed</span>
+                                {% else %}
+                                    <span class="vz-badge vz-badge--{{ booking.status|status_badge }}">{{ booking.status|choice_label }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="vz-ticket__route">{{ flight.departure_airport.city }} → {{ flight.arrival_airport.city }}</div>
+                            <div class="vz-ticket__meta">
+                                {{ flight.departure_time|date:"D, j M Y" }} · {{ flight.departure_time|time:"H:i" }} – {{ flight.arrival_time|time:"H:i" }}
+                            </div>
+                        </div>
+
+                        <div class="vz-ticket__stub">
+                            <dl class="vz-ticket__facts">
+                                <div>
+                                    <dt>Seat</dt>
+                                    <dd>
+                                        {% if booking.seat %}
+                                            <strong>{{ booking.seat.number }}</strong> {{ booking.seat.seat_class|choice_label }}
+                                        {% else %}—{% endif %}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Booking</dt>
+                                    <dd><strong>{{ booking.booking_number }}</strong></dd>
+                                </div>
+                                <div>
+                                    <dt>Payment</dt>
+                                    <dd>
+                                        {% if booking.payment %}
+                                            <span class="vz-badge vz-badge--{{ booking.payment.status|status_badge }}">{{ booking.payment.get_status_display }}</span>
+                                        {% else %}
+                                            <span class="vz-badge">Not paid</span>
+                                        {% endif %}
+                                    </dd>
+                                </div>
+                            </dl>
+
+                            {% if booking.status == 'CONFIRMED' and flight.departure_time > now %}
+                                <div class="vz-actions">
+                                    {% if not booking.payment %}
+                                        <a class="vz-btn vz-btn--small" href="{% url 'payment-create' %}?booking={{ booking.pk }}">Pay {{ flight.price|money }}</a>
+                                    {% endif %}
+                                    <a class="vz-btn vz-btn--small vz-btn--ghost" href="{% url 'booking-edit' booking.pk %}">Change seat</a>
+                                    <a class="vz-link-danger" href="{% url 'booking-delete' booking.pk %}">Cancel booking</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endwith %}
             {% endfor %}
-        </tbody>
-    </table>
+        </ul>
+    {% else %}
+        <div class="vz-empty">
+            <p>You have no bookings yet.</p>
+            <div class="vz-actions">
+                <a href="{% url 'home' %}" class="vz-btn">Find a flight</a>
+            </div>
+        </div>
+    {% endif %}
 
 </div>
-{% endblock content %}
+{% endblock %}

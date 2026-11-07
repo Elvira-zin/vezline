@@ -1,6 +1,13 @@
+import math
+import re
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from airplanes.models import Airplane
+
+# Seat numbers are a row number + a letter, like "12C" (see sync_airplane_seats)
+SEAT_NUMBER = re.compile(r"^(?P<row>\d+)(?P<letter>[A-F])$")
+SEATS_PER_ROW = 6
 
 class Seat(models.Model):
     class SeatClass(models.TextChoices):
@@ -9,8 +16,7 @@ class Seat(models.Model):
         FIRST = "FIRST", "Перший клас"
 
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="seats")
-    # Kept as CharField on purpose: v1 accepts digits only (see clean()),
-    # but this leaves room for row+letter seat codes like "12A" later.
+    # Row number + letter, e.g. "12C" (checked in clean())
     number = models.CharField(max_length=10)
     seat_class = models.CharField(
         max_length=20,
@@ -29,10 +35,16 @@ class Seat(models.Model):
     def clean(self):
         if not self.number:
             return
-        if not self.number.isdigit():
-            raise ValidationError({"number": "Number must contain only digits."})
+
+        self.number = self.number.strip().upper()
+        match = SEAT_NUMBER.match(self.number)
+        if not match:
+            raise ValidationError({"number": "Use a row number and a letter A–F, e.g. 12C."})
+
         if not self.airplane_id:
             return
-        number = int(self.number)
-        if number < 1 or number > self.airplane.capacity:
-            raise ValidationError({"number": f"Available seat numbers are between 1 and {self.airplane.capacity}."})
+
+        row = int(match["row"])
+        last_row = math.ceil(self.airplane.capacity / SEATS_PER_ROW)
+        if row < 1 or row > last_row:
+            raise ValidationError({"number": f"This airplane has rows 1–{last_row}."})
