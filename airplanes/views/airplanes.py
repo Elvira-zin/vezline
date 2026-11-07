@@ -13,10 +13,11 @@ def sync_airplane_seats(airplane, economy_count, business_count, first_class_cou
         airplane.seats.values_list("number", flat=True)
     )
 
+    # Front of the plane first: first class, then business, then economy
     seat_configs = [
-        (economy_count, Seat.SeatClass.ECONOMY),
-        (business_count, Seat.SeatClass.BUSINESS),
         (first_class_count, Seat.SeatClass.FIRST),
+        (business_count, Seat.SeatClass.BUSINESS),
+        (economy_count, Seat.SeatClass.ECONOMY),
     ]
 
     letters = "ABCDEF"

@@ -1,10 +1,7 @@
-import re
-
 from bookings.models import Booking
 from seats.models import Seat
+from seats.models.seat import SEAT_NUMBER
 
-# Seat numbers look like "12C": row number + letter (see sync_airplane_seats)
-SEAT_NUMBER = re.compile(r"^(?P<row>\d+)(?P<letter>[A-Z])$")
 LEFT_LETTERS = "ABC"
 RIGHT_LETTERS = "DEF"
 
@@ -62,7 +59,7 @@ def group_seats(seats, taken_ids, selected_seat_id=None):
             free += 1
 
         match = SEAT_NUMBER.match(seat.number)
-        if match and match["letter"] in LEFT_LETTERS + RIGHT_LETTERS:
+        if match:
             cell["letter"] = match["letter"]
             rows.setdefault(int(match["row"]), {})[match["letter"]] = cell
         else:
