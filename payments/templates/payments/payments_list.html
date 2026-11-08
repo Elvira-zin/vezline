@@ -1,53 +1,59 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}Payments{% endblock title %}
+{% block title %}Payments · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Payments</h1>
-        <a href="{% url 'payment-create' %}" class="btn btn-primary">
-            + Create Payment
-        </a>
+    <div class="vz-page-head">
+        <div>
+            <h1>Payments</h1>
+            <p>{{ payments|length }} payment{{ payments|length|pluralize }}</p>
+        </div>
+        <a href="{% url 'payment-create' %}" class="vz-btn">New payment</a>
     </div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-              <th>Date</th>
-              <th>Booking</th>
-              <th>Flight</th>
-              <th>Amount</th>
-              <th>Method</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for payment in payments %}
-                <tr>
-                    <td>{{ payment.created_at }}</td>
-                    <td>{{ payment.booking.booking_number }}</td>
-                    <td>{{ payment.booking.flight }}</td>
-                    <td>{{ payment.amount }} {{ payment.currency }}</td>
-                    <td>{{ payment.get_payment_method_display }}</td>
-                    <td>{{ payment.get_status_display }}</td>
-                    <td>
-                        <a href="{% url 'payment-edit' payment.pk %}"
-                           class="btn btn-sm btn-outline-primary" title="Edit">✏️</a>
-                        <a href="{% url 'payment-delete' payment.pk %}"
-                           class="btn btn-sm btn-outline-danger" title="Delete">❌</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center">No payments found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% if payments %}
+        <div class="vz-table-wrap">
+            <table class="vz-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Flight</th>
+                        <th>Booking</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th class="vz-table__actions"><span class="vz-visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.created_at|date:"j M Y, H:i" }}</td>
+                            <td>
+                                <span class="vz-strong">{{ payment.booking.flight.departure_airport.city }} → {{ payment.booking.flight.arrival_airport.city }}</span><br>
+                                <span class="vz-muted">{{ payment.booking.flight.flight_number }} · {{ payment.booking.flight.departure_time|date:"j M" }}</span>
+                            </td>
+                            <td>{{ payment.booking.booking_number }}</td>
+                            <td class="vz-strong">{{ payment.amount|floatformat:2 }} {{ payment.currency }}</td>
+                            <td>{{ payment.get_payment_method_display }}</td>
+                            <td><span class="vz-badge vz-badge--{{ payment.status|status_badge }}">{{ payment.get_status_display }}</span></td>
+                            <td class="vz-table__actions">
+                                <a href="{% url 'payment-edit' payment.pk %}" class="vz-btn vz-btn--small vz-btn--ghost">Edit</a>
+                                <a href="{% url 'payment-delete' payment.pk %}" class="vz-btn vz-btn--small vz-btn--ghost vz-link-danger">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="vz-empty">
+            <p>No payments yet. Pay for a booking from <a href="{% url 'booking-list' %}">My bookings</a>.</p>
+        </div>
+    {% endif %}
 
 </div>
-{% endblock content %}
+{% endblock %}

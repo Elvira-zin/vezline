@@ -1,58 +1,92 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from payments.forms.payments import PaymentForm
 from payments.models import Payment
 
 
-@login_required
-def payments_list(request):
-    payments = Payment.objects.filter(booking__user=request.user).select_related("booking__flight")
-    return render(request, "payments/payments_list.html", {"payments": payments})
+def chosen_booking(form):
+    """The booking being paid: for the summary card on the payment page."""
+    if "booking" not in form.fields:
+        return form.instance.booking
+
+    booking_id = str(form["booking"].value() or "")
+    if not booking_id.isdigit():
+        return None
+    return form.fields["booking"].queryset.filter(pk=booking_id).first()
 
 
-@login_required
-def payment_create(request):
-    if request.method == "POST":
-        form = PaymentForm(request.POST, user=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect("payment-list")
-    else:
-        form = PaymentForm(user=request.user)
-    return render(request, "payments/payment_form.html", {"form": form})
+class UserPaymentsMixin(LoginRequiredMixin):
+    """Only the logged-in user's payments. Someone else's payment gives 404."""
+
+    def get_queryset(self):
+        return Payment.objects.filter(
+            booking__user=self.request.user
+        ).select_related(
+            "booking__flight__departure_airport",
+            "booking__flight__arrival_airport",
+            "booking__seat",
+        )
 
 
-@login_required
-def payment_edit(request, pk):
-    payment = get_object_or_404(Payment, pk=pk, booking__user=request.user)
+class PaymentFormMixin:
+    """Shared by create and edit: same form, template and summary card."""
 
-    if request.method == "POST":
-        form = PaymentForm(request.POST, user=request.user, instance=payment)
+    form_class = PaymentForm
+    template_name = "payments/payment_form.html"
+    success_url = reverse_lazy("payment-list")
 
-        if form.is_valid():
-            form.save()
-            return redirect("payment-list")
-    else:
-        form = PaymentForm(user=request.user, instance=payment)
+    def get_form_kwargs(self):
+        # PaymentForm shows only this user's bookings, so it needs the user
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
-    return render(
-        request,
-        "payments/payment_form.html",
-        {"form": form},
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["booking"] = chosen_booking(context["form"])
+        return context
 
 
-@login_required
-def payment_delete(request, pk):
-    payment = get_object_or_404(Payment, pk=pk, booking__user=request.user)
+class PaymentListView(UserPaymentsMixin, ListView):
+    template_name = "payments/payments_list.html"
+    context_object_name = "payments"
 
-    if request.method == "POST":
-        payment.delete()
-        return redirect("payment-list")
+    def get_queryset(self):
+        return super().get_queryset().order_by("-created_at")
 
-    return render(
-        request,
-        "payments/payment_confirm_delete.html",
-        {"payment": payment},
-    )
+
+class PaymentCreateView(LoginRequiredMixin, PaymentFormMixin, CreateView):
+    def get_initial(self):
+        # "Pay" buttons link here as ?booking=<id>
+        initial = super().get_initial()
+        booking_id = self.request.GET.get("booking", "")
+        if booking_id.isdigit():
+            initial["booking"] = booking_id
+        return initial
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f"Payment for booking {self.object.booking.booking_number} is saved.",
+        )
+        return response
+
+
+class PaymentUpdateView(UserPaymentsMixin, PaymentFormMixin, UpdateView):
+    def form_valid(self, form):
+        messages.success(self.request, "Payment updated.")
+        return super().form_valid(form)
+
+
+class PaymentDeleteView(UserPaymentsMixin, DeleteView):
+    template_name = "payments/payment_confirm_delete.html"
+    context_object_name = "payment"
+    success_url = reverse_lazy("payment-list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Payment deleted.")
+        return super().form_valid(form)

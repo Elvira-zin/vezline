@@ -1,0 +1,31 @@
+{% comment %} Create / edit form for the Manage pages.
+   Usage: {% url 'airport-list' as back_url %}
+          {% include "main/includes/object_form.html" with noun="airport" back_url=back_url %} {% endcomment %}
+<div class="vz-page vz-page--narrow">
+    <div class="vz-page-head">
+        <div>
+            <span class="vz-eyebrow">Manage · {{ noun|capfirst }}s</span>
+            <h1>{% if form.instance.pk %}Edit {{ noun }}{% else %}Add {{ noun }}{% endif %}</h1>
+            {% if form.instance.pk %}<p>{{ form.instance }}</p>{% endif %}
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="vz-panel vz-form" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="vz-alert vz-alert--error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="vz-form__grid">
+            {% for field in form %}
+                {% include "main/includes/form_field.html" with field=field %}
+            {% endfor %}
+        </div>
+
+        <div class="vz-form__foot">
+            <button type="submit" class="vz-btn">{% if form.instance.pk %}Save changes{% else %}Add {{ noun }}{% endif %}</button>
+            <a href="{{ back_url }}" class="vz-btn vz-btn--ghost">Cancel</a>
+        </div>
+    </form>
+</div>

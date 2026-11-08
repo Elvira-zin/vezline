@@ -1,47 +1,49 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}Seats{% endblock title %}
+{% block title %}Seats · Manage · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Seats</h1>
-        <a href="{% url 'seat-create' %}" class="btn btn-primary">
-            + Create Seat
-        </a>
+    <div class="vz-page-head">
+        <div>
+            <span class="vz-eyebrow">Manage</span>
+            <h1>Seats</h1>
+            <p>{{ seats|length }} in total</p>
+        </div>
+        <a href="{% url 'seat-create' %}" class="vz-btn">Add seat</a>
     </div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-              <th>Airplane</th>
-              <th>Number</th>
-              <th>Seat Class</th>
-              <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for seat in seats %}
+    <div class="vz-table-wrap">
+        <table class="vz-table">
+            <thead>
                 <tr>
-                    <td>{{ seat.airplane }}</td>
-                    <td>{{ seat.number }}</td>
-                    <td>{{ seat.get_seat_class_display }}</td>
-                    <td>
-                        <a href="{% url 'seat-edit' seat.pk %}"
-                           class="btn btn-sm btn-outline-primary" title="Edit">✏️</a>
-                        <a href="{% url 'seat-delete' seat.pk %}"
-                           class="btn btn-sm btn-outline-danger" title="Delete">❌</a>
-                    </td>
+                    <th>Airplane</th>
+                    <th>Seat</th>
+                    <th>Class</th>
+                    <th class="vz-table__actions"><span class="vz-visually-hidden">Actions</span></th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center">No seats found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for seat in seats %}
+                    <tr>
+                        <td>{{ seat.airplane.registration_number }} <span class="vz-muted">{{ seat.airplane.model }}</span></td>
+                        <td><span class="vz-strong">{{ seat.number }}</span></td>
+                        <td>{{ seat.seat_class|choice_label }}</td>
+                        <td class="vz-table__actions">
+                            <a href="{% url 'seat-edit' seat.pk %}" class="vz-btn vz-btn--small vz-btn--ghost">Edit</a>
+                            <a href="{% url 'seat-delete' seat.pk %}" class="vz-btn vz-btn--small vz-btn--ghost vz-link-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="vz-table__empty">No seats yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
-{% endblock content %}
+{% endblock %}

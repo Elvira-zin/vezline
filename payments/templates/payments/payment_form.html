@@ -1,25 +1,85 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}
-  {% if form.instance.pk %}Edit Payment{% else %}Create Payment{% endif %}
-{% endblock title %}
+{% block title %}{% if form.instance.pk %}Edit payment{% else %}Pay{% endif %} · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page vz-page--narrow">
 
-    <h1 class="mb-4">
-        {% if form.instance.pk %}Edit Payment{% else %}Create Payment{% endif %}
-    </h1>
+    {% if not form.instance.pk %}
+        <ol class="vz-steps" aria-label="Booking steps">
+            <li class="is-done"><span aria-hidden="true">✓</span>Search</li>
+            <li class="is-done"><span aria-hidden="true">✓</span>Pick a seat</li>
+            <li class="is-active" aria-current="step"><span>3</span>Pay</li>
+        </ol>
+    {% endif %}
 
-    <form method="post">
+    <div class="vz-page-head">
+        <div>
+            <span class="vz-eyebrow">Payments</span>
+            <h1>{% if form.instance.pk %}Edit payment{% else %}Pay for your booking{% endif %}</h1>
+            {% if form.instance.pk %}<p>{{ form.instance.transaction_id }}</p>{% endif %}
+        </div>
+    </div>
+
+    {% if booking %}
+        <section class="vz-summary" aria-label="Booking">
+            <div class="vz-summary__main">
+                <span class="vz-summary__route">{{ booking.flight.departure_airport.city }} → {{ booking.flight.arrival_airport.city }}</span>
+                <span class="vz-summary__meta">
+                    {{ booking.flight.flight_number }} · {{ booking.flight.departure_time|date:"D, j M Y · H:i" }}
+                </span>
+                <span class="vz-summary__meta">
+                    Booking {{ booking.booking_number }}{% if booking.seat %} · seat {{ booking.seat.number }} ({{ booking.seat.seat_class|choice_label }}){% endif %}
+                </span>
+            </div>
+            <span class="vz-summary__price">{{ booking.flight.price|money }}</span>
+        </section>
+    {% endif %}
+
+    <form method="post" class="vz-panel vz-form" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
 
-        <button type="submit" class="btn btn-primary">
-            {% if form.instance.pk %}Save changes{% else %}Create{% endif %}
-        </button>
-        <a href="{% url 'payment-list' %}" class="btn btn-outline-secondary">Cancel</a>
+        {% if form.non_field_errors %}
+            <div class="vz-alert vz-alert--error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% if form.booking %}
+            {% if booking and not form.booking.errors %}
+                <input type="hidden" name="booking" value="{{ booking.pk }}">
+            {% else %}
+                {% include "main/includes/form_field.html" with field=form.booking %}
+                {% if not form.booking.field.queryset.exists %}
+                    <p class="vz-help">All your bookings are already paid. <a href="{% url 'home' %}">Book a new flight</a></p>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        <fieldset class="vz-fieldset">
+            <legend class="vz-field__label">Payment method</legend>
+            <div class="vz-choices">
+                {% for radio in form.payment_method %}
+                    {% if radio.data.value %}
+                        <label class="vz-choice">
+                            {{ radio.tag }}
+                            <span>{{ radio.choice_label }}</span>
+                        </label>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% for error in form.payment_method.errors %}
+                <p class="vz-error">{{ error }}</p>
+            {% endfor %}
+        </fieldset>
+
+        <div class="vz-form__foot">
+            <button type="submit" class="vz-btn vz-btn--big">
+                {% if form.instance.pk %}Save changes{% elif booking %}Pay {{ booking.flight.price|money }}{% else %}Pay{% endif %}
+            </button>
+            <a href="{% url 'payment-list' %}" class="vz-btn vz-btn--ghost">Cancel</a>
+        </div>
+        <p class="vz-help">Demo project: no real money is charged.</p>
     </form>
 
 </div>
-{% endblock content %}
+{% endblock %}

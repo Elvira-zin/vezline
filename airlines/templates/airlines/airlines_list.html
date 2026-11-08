@@ -1,70 +1,53 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}Airlines{% endblock title %}
+{% block title %}Airlines · Manage · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Airlines</h1>
-        <a href="{% url 'airline-create' %}" class="btn btn-primary">
-            + Create Airline
-        </a>
+    <div class="vz-page-head">
+        <div>
+            <span class="vz-eyebrow">Manage</span>
+            <h1>Airlines</h1>
+            <p>{{ airlines|length }} in total</p>
+        </div>
+        <a href="{% url 'airline-create' %}" class="vz-btn">Add airline</a>
     </div>
 
-    <table class="table table-bordered table-hover">
-
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Website</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for airline in airlines %}
+    <div class="vz-table-wrap">
+        <table class="vz-table">
+            <thead>
                 <tr>
-                    <td>{{ airline.name }}</td>
-                    <td>{{ airline.website }}</td>
-                    <td>{{ airline.phone }}</td>
-                    <td>{{ airline.email }}</td>
-                    <td>{{ airline.description }}</td>
-
-                    <td>
-                        <a
-                            href="{% url 'airline-edit' airline.pk %}"
-                            class="btn btn-sm btn-outline-primary"
-                            title="Edit"
-                        >
-                            ✏️
-                        </a>
-
-                        <a
-                            href="{% url 'airline-delete' airline.pk %}"
-                            class="btn btn-sm btn-outline-danger"
-                            title="Delete"
-                        >
-                            ❌
-                        </a>
-                    </td>
+                    <th>Airline</th>
+                    <th>Website</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Description</th>
+                    <th class="vz-table__actions"><span class="vz-visually-hidden">Actions</span></th>
                 </tr>
-
-            {% empty %}
-
-                <tr>
-                    <td colspan="6" class="text-center">
-                        No airlines found.
-                    </td>
-                </tr>
-
-            {% endfor %}
-        </tbody>
-
-    </table>
+            </thead>
+            <tbody>
+                {% for airline in airlines %}
+                    <tr>
+                        <td><span class="vz-strong">{{ airline.name }}</span>{% if airline.code %} <span class="vz-muted">{{ airline.code }}</span>{% endif %}</td>
+                        <td>{% if airline.website %}<a href="{{ airline.website }}" rel="noopener" target="_blank">{{ airline.website|cut:"https://"|cut:"http://" }}</a>{% else %}—{% endif %}</td>
+                        <td>{{ airline.phone|default:"—" }}</td>
+                        <td>{{ airline.email|default:"—" }}</td>
+                        <td><div class="vz-table__clip" title="{{ airline.description }}">{{ airline.description|default:"—" }}</div></td>
+                        <td class="vz-table__actions">
+                            <a href="{% url 'airline-edit' airline.pk %}" class="vz-btn vz-btn--small vz-btn--ghost">Edit</a>
+                            <a href="{% url 'airline-delete' airline.pk %}" class="vz-btn vz-btn--small vz-btn--ghost vz-link-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="vz-table__empty">No airlines yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
-{% endblock content %}
+{% endblock %}

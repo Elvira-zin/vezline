@@ -1,0 +1,4 @@
+{% load vezline %}{% if cell %}<label class="vz-seat vz-seat--{{ cell.seat_class|lower }}{% if cell.taken %} is-taken{% endif %}" title="Seat {{ cell.number }} · {{ cell.seat_class|choice_label }}{% if cell.taken %} · taken{% endif %}">
+    <input type="radio" name="seat" value="{{ cell.id }}" data-label="{{ cell.number }} · {{ cell.seat_class|choice_label }}"{% if cell.taken %} disabled{% endif %}{% if cell.selected %} checked{% endif %} aria-label="Seat {{ cell.number }}, {{ cell.seat_class|choice_label }}{% if cell.taken %}, taken{% endif %}">
+    <span>{{ cell.letter }}</span>
+</label>{% else %}<span class="vz-seat vz-seat--none" aria-hidden="true"></span>{% endif %}

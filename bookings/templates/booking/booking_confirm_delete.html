@@ -1,19 +1,34 @@
 {% extends "main/base.html" %}
+{% load vezline %}
 
-{% block title %}Delete Booking{% endblock title %}
+{% block title %}Cancel booking · Vezline{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="vz-page vz-page--narrow">
+    <div class="vz-page-head">
+        <div>
+            <span class="vz-eyebrow">My bookings · {{ booking.booking_number }}</span>
+            <h1>Cancel this booking?</h1>
+            <p>The seat goes back on sale. You cannot undo this.</p>
+        </div>
+    </div>
 
-    <h1 class="mb-3">Delete booking?</h1>
-    <p>{{ booking }}</p>
-    <p class="text-secondary">This action cannot be undone.</p>
+    <section class="vz-summary" aria-label="Booking">
+        <div class="vz-summary__main">
+            <span class="vz-summary__route">{{ booking.flight.departure_airport.city }} → {{ booking.flight.arrival_airport.city }}</span>
+            <span class="vz-summary__meta">
+                {{ booking.flight.flight_number }} · {{ booking.flight.departure_time|date:"D, j M Y · H:i" }}
+            </span>
+        </div>
+        {% if booking.seat %}
+            <span class="vz-summary__price">Seat {{ booking.seat.number }}</span>
+        {% endif %}
+    </section>
 
-    <form method="post">
+    <form method="post" class="vz-actions">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url 'booking-list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="vz-btn vz-btn--danger">Yes, cancel booking</button>
+        <a href="{% url 'booking-list' %}" class="vz-btn vz-btn--ghost">Keep my booking</a>
     </form>
-
 </div>
-{% endblock content %}
+{% endblock %}

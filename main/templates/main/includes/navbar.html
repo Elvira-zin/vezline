@@ -1,0 +1,41 @@
+{# Site navigation. Used in the top bar of every page and inside the home hero. #}
+{% with page=request.resolver_match.url_name|default:"" %}
+<nav class="vz-nav" aria-label="Main">
+    <a class="vz-nav__brand" href="{% url 'home' %}">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 16l20-8-6 12-3-6-6-1z"></path></svg>
+        Vezline
+    </a>
+
+    <div class="vz-nav__links">
+        <a href="{% url 'home' %}?from=GDN#results">Flights</a>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'booking-list' %}" {% if 'booking' in page %}aria-current="page"{% endif %}>My bookings</a>
+            <a href="{% url 'payment-list' %}" {% if 'payment' in page %}aria-current="page"{% endif %}>Payments</a>
+
+            {% if user.is_staff %}
+                <details class="vz-nav__menu">
+                    <summary>Manage</summary>
+                    <div class="vz-nav__menu-list">
+                        <a href="{% url 'flight-list' %}">Flights</a>
+                        <a href="{% url 'airport-list' %}">Airports</a>
+                        <a href="{% url 'airline-list' %}">Airlines</a>
+                        <a href="{% url 'airplane-list' %}">Airplanes</a>
+                        <a href="{% url 'seat-list' %}">Seats</a>
+                        <a href="{% url 'admin:index' %}">Django admin</a>
+                    </div>
+                </details>
+            {% endif %}
+
+            <a href="{% url 'profile' %}" {% if 'profile' in page %}aria-current="page"{% endif %}>{{ user.email }}</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="vz-nav__pill">Log out</button>
+            </form>
+        {% else %}
+            <a href="{% url 'register' %}" {% if page == 'register' %}aria-current="page"{% endif %}>Sign up</a>
+            <a class="vz-nav__pill" href="{% url 'login' %}">Log in</a>
+        {% endif %}
+    </div>
+</nav>
+{% endwith %}
