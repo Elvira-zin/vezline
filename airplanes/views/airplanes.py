@@ -5,6 +5,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from airplanes.forms.airplanes import AirplaneForm
 from airplanes.models import Airplane
+from main.mixins.mixins import StaffRequiredMixin
 from seats.models import Seat
 
 
@@ -43,7 +44,7 @@ def sync_airplane_seats(airplane, economy_count, business_count, first_class_cou
 
     Seat.objects.bulk_create(seats_to_create)
 
-class AirplaneListView(ListView):
+class AirplaneListView(StaffRequiredMixin, ListView):
     model = Airplane
     template_name = "airplanes/airplanes_list.html"
     context_object_name = "airplanes"
@@ -52,7 +53,7 @@ class AirplaneListView(ListView):
         return Airplane.objects.select_related("airline")
 
 
-class AirplaneCreateView(CreateView):
+class AirplaneCreateView(StaffRequiredMixin, CreateView):
     model = Airplane
     form_class = AirplaneForm
     template_name = "airplanes/airplane_form.html"
@@ -71,7 +72,7 @@ class AirplaneCreateView(CreateView):
 
         return response
 
-class AirplaneUpdateView(UpdateView):
+class AirplaneUpdateView(StaffRequiredMixin, UpdateView):
     model = Airplane
     form_class = AirplaneForm
     template_name = "airplanes/airplane_form.html"
@@ -97,7 +98,7 @@ class AirplaneUpdateView(UpdateView):
 
         return response
 
-class AirplaneDeleteView(DeleteView):
+class AirplaneDeleteView(StaffRequiredMixin, DeleteView):
     model = Airplane
     template_name = "airplanes/airplane_confirm_delete.html"
     success_url = reverse_lazy("airplane-list")

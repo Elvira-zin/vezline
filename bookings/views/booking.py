@@ -21,6 +21,8 @@ class BookingListView(LoginRequiredMixin, ListView):
     model = Booking
     template_name = "booking/booking_list.html"
     context_object_name = "bookings"
+    paginate_by = 20
+
 
     def get_queryset(self):
         return Booking.objects.filter(
@@ -135,6 +137,9 @@ class BookingDeleteView(LoginRequiredMixin, TemplateView):
     template_name = "booking/booking_confirm_delete.html"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+
         self.booking = get_object_or_404(
             Booking.objects.select_related(
                 "flight__departure_airport",
