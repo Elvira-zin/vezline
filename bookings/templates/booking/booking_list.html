@@ -9,7 +9,7 @@
     <div class="vz-page-head">
         <div>
             <h1>My bookings</h1>
-            <p>{{ bookings|length }} booking{{ bookings|length|pluralize }}</p>
+            <p>{{ page_obj.paginator.count }} booking{{ page_obj.paginator.count|pluralize }}</p>
         </div>
         <a href="{% url 'home' %}" class="vz-btn">Book a flight</a>
     </div>
@@ -74,6 +74,21 @@
                 {% endwith %}
             {% endfor %}
         </ul>
+
+        {% if is_paginated %}
+            <nav class="vz-actions" aria-label="Pagination">
+                {% if page_obj.has_previous %}
+                    <a class="vz-btn vz-btn--small vz-btn--ghost" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a class="vz-btn vz-btn--small vz-btn--ghost" href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+
     {% else %}
         <div class="vz-empty">
             <p>You have no bookings yet.</p>
