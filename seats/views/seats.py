@@ -1,3 +1,6 @@
+from django.contrib import messages
+from django.db.models import ProtectedError
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
@@ -34,3 +37,10 @@ class SeatDeleteView(StaffRequiredMixin, DeleteView):
     template_name = "seats/seat_confirm_delete.html"
     context_object_name = "seat"
     success_url = reverse_lazy("seat-list")
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except ProtectedError:
+            messages.error(self.request, "This seat has bookings and cannot be deleted.")
+            return redirect("seat-list")

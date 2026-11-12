@@ -5,6 +5,7 @@ from users.models import User
 from flights.models import Flight
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils import timezone
 
 class Booking(models.Model):
     class Meta:
@@ -39,6 +40,12 @@ class Booking(models.Model):
         return f"{self.flight.flight_number} - {self.booking_number}"
       
     def clean(self):
+        super().clean()
+
+        if self._state.adding and self.flight_id:
+            if self.flight.departure_time <= timezone.now():
+                raise ValidationError({"flight": "This flight has already departed."})
+
         if not self.flight_id or not self.seat_id:
             return
 
